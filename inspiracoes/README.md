@@ -60,8 +60,5 @@ código.
 
 Resultado: [`layout-03.html`](../layout-03.html).
 
-> **Direitos:** no layout 02, a foto do quarto vem de um vídeo, e a parede tem personagens de
-> jogos de terceiros. Serve para discussão de layout; antes de virar o visual
-> oficial, é preciso confirmar o uso com quem enviou. No layout 03, mesmo sem
-> citar o filme, a IA gerou um boneco muito parecido com o personagem, que é do
-> estúdio; para uso oficial, vale gerar uma versão mais diferente do original.
+> **Direitos autorais:** os layouts 02 e 03 podem sofrer problemas com
+> direitos autorais, estamos cientes disso.

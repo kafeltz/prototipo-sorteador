@@ -214,10 +214,7 @@ vencedor.
 
 ### Pendências
 
-- **Direitos das imagens.** A foto do quarto é a captura de um vídeo, e a
-  parede tem personagens de jogos (Pac-Man, Link, o cogumelo do Mario). Para um
-  protótipo de discussão está bom; para a versão final, é preciso confirmar com
-  quem enviou se pode usar a imagem, e de preferência ter um fundo próprio.
+- **Direitos autorais.** O layout pode sofrer problemas com direitos autorais, estamos cientes disso.
 - **Escolher.** Este é só o layout 02. A ideia é juntar outras propostas e
   decidir com a comunidade.
 
@@ -280,11 +277,9 @@ Ajustes que elas mostraram: a legenda cobrindo a boca do boneco no celular, o
 boneco por cima do texto na tela do vencedor, e a bochecha dele quase
 encostando no "Olá,".
 
-### Pendência
+### Direitos autorais
 
-Mesmo sem citar o filme, a IA gerou um boneco **muito parecido** com o
-personagem, que pertence ao estúdio. Para protótipo, tudo bem; para virar o
-visual oficial, vale gerar uma versão mais diferente do original.
+O layout pode sofrer problemas com direitos autorais, estamos cientes disso.
 
 ### Lição
 
