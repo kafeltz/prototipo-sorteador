@@ -226,3 +226,68 @@ vencedor.
 > Imagem gerada por IA é ótima para conversar sobre o visual e péssima para
 > virar interface. Use como referência: extraia o que é imagem (fundo, logo,
 > cores) e refaça o resto em HTML e CSS.
+
+---
+
+## Ato 5: Uma proposta minha, a sala do jogo
+
+**Data:** 10/10/2026
+
+### O que eu pedi
+
+Um layout macabro inspirado no filme *Jogos Mortais*, mas **sem nada
+nojento**: só um cenário escuro com uma TV mostrando a gravação daquele boneco
+famoso.
+
+### O que foi decidido
+
+- O sorteio vira **o jogo**. A TV é o centro da tela, e é ela que revela o
+  vencedor: *"Olá, gamerlilia. Você venceu o jogo."*
+- O resto conta a história com objetos: os participantes num **dossiê** de
+  papel, o prêmio escrito na etiqueta de uma **fita cassete**, um
+  **cronômetro** vermelho e o botão **COMEÇAR O JOGO**.
+- **A lâmpada falha só de vez em quando.** Luz piscando forte pode causar
+  crise em quem tem epilepsia fotossensível. A regra é no máximo 3 piscadas
+  por segundo, e nenhuma animação para quem pede menos movimento no sistema.
+
+### A primeira tentativa: o boneco desenhado em código
+
+Como não havia imagem de referência, o boneco foi desenhado à mão em SVG
+(desenho vetorial escrito dentro do próprio HTML). Primeiro saiu com cara de
+desenho animado: cores chapadas e contorno. A segunda versão ganhou luz,
+sombra, brilho de porcelana e efeito de fita VHS, e melhorou muito, mas
+continuava sendo ilustração. Esse é o limite de um desenho feito em código.
+
+### A solução: eu mesmo gerei a imagem com IA
+
+Pedi à IA um **prompt** para o Leonardo.ai, um gerador de imagens, e gerei a
+foto do boneco. O prompt e o prompt negativo estão em
+[`inspiracoes/README.md`](inspiracoes/README.md). Três escolhas fizeram
+diferença:
+
+- **Descrever, não nomear.** Nada de nome do filme ou do personagem, só as
+  características (porcelana, espirais nas bochechas, queixo articulado).
+- **Pensar no encaixe antes de gerar.** Proporção 4:3, igual à tela da TV, e
+  fundo preto liso. Assim a foto entra direto, sem recorte difícil.
+- **Não pedir o que o código já faz.** Nada de TV, linhas de tela ou texto na
+  imagem. O efeito de fita VHS gasta (desfoque, cor lavada, vermelho e ciano
+  borrados para os lados) é CSS, por cima da foto.
+
+### Como conferi
+
+Capturas no computador e no celular, na tela principal e na do vencedor.
+Ajustes que elas mostraram: a legenda cobrindo a boca do boneco no celular, o
+boneco por cima do texto na tela do vencedor, e a bochecha dele quase
+encostando no "Olá,".
+
+### Pendência
+
+Mesmo sem citar o filme, a IA gerou um boneco **muito parecido** com o
+personagem, que pertence ao estúdio. Para protótipo, tudo bem; para virar o
+visual oficial, vale gerar uma versão mais diferente do original.
+
+### Lição
+
+> Quando o código chega no limite, troque de ferramenta: a IA de texto escreve
+> o pedido, a IA de imagem gera a foto, e o código cuida do resto. E pense no
+> encaixe antes de gerar: proporção, fundo e o que o código já faz.
