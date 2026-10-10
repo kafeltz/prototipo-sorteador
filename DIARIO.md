@@ -147,3 +147,82 @@ participarão."
 > Deixar o repositório público não basta para ele ser aberto à comunidade.
 > README e licença são o que permite alguém de fora entender o projeto e
 > poder contribuir.
+
+---
+
+## Ato 4: Definindo o visual com a comunidade
+
+**Data:** 10/10/2026
+
+### O ponto de partida
+
+Participantes mandaram imagens com a cara que gostariam para o sorteador:
+
+- uma **montagem pronta** de um tema "quarto gamer neon", com painel de
+  participantes, roda saindo de um presente, prêmio do dia e botão;
+- um **logo**: um presente neon com um direcional de videogame;
+- uma **foto do quarto** sem nada por cima, mas capturada de um vídeo do
+  YouTube, com o título e os controles do player na imagem.
+
+As originais ficam guardadas em `inspiracoes/layout-02/`, com um README
+explicando o que cada uma virou. Elas não são usadas pelo layout; servem
+para mostrar de onde ele partiu.
+
+### O que eu pedi
+
+Aproveitar as imagens para decidir o layout, e fazer isso com **HTMLs
+separados, sem programação nenhuma**, um por ideia (`layout-02.html`,
+`layout-03.html`…). Assim dá para comparar visuais lado a lado antes de mexer no
+sorteador de verdade.
+
+### Por que a montagem não pode ser usada como está
+
+Ela é uma **foto de um layout**, não um layout. Texto, painéis, brilho e roda
+estão colados numa imagem só: não dá para trocar um nome, aumentar a tela nem
+ler com leitor de tela. E, por ter sido gerada por IA, tem os defeitos típicos:
+nomes embaralhados na roda, "Prêmio do me" em vez de "Prêmio do dia".
+
+O trabalho é **extrair** dela o que é imagem de verdade e **refazer em código**
+o que é interface.
+
+### O que foi extraído
+
+| Da referência | Virou |
+|---|---|
+| Foto do quarto | Fundo da página, recortado para tirar os controles do YouTube; o CSS escurece e desfoca |
+| Logo do presente | PNG com fundo transparente, recortado pelo contorno branco do adesivo (o "balde de tinta" do editor de imagem, feito por script) |
+| Mesa gamer do painel de prêmio | Imagem do prêmio, só para ilustrar |
+| Cores do neon | Medidas por script na própria montagem: ciano (~55% do neon), coral (~22%) e um azul-petróleo quase preto de fundo |
+
+O resto foi **refeito em CSS**: o brilho neon é `box-shadow` e `text-shadow`
+empilhados, os painéis de vidro são `backdrop-filter: blur()`, e a roda é um
+`conic-gradient` com os nomes girados um a um.
+
+### Sem JavaScript, mas com clique
+
+O botão "Iniciar Sorteio" é um link para `#revelacao`. O seletor CSS `:target`
+mostra a tela do vencedor quando o endereço termina em `#revelacao`, e o
+"Voltar" é um link para `#`. Com isso o protótipo tem duas telas e um clique sem
+uma linha de código.
+
+### Como conferi
+
+Capturas de tela no tamanho de computador, de celular e da tela do vencedor.
+Elas mostraram dois problemas, que foram corrigidos: nomes compridos sumindo
+atrás do miolo da roda, e a roda de trás aparecendo através da tela do
+vencedor.
+
+### Pendências
+
+- **Direitos das imagens.** A foto do quarto é a captura de um vídeo, e a
+  parede tem personagens de jogos (Pac-Man, Link, o cogumelo do Mario). Para um
+  protótipo de discussão está bom; para a versão final, é preciso confirmar com
+  quem enviou se pode usar a imagem, e de preferência ter um fundo próprio.
+- **Escolher.** Este é só o layout 02. A ideia é juntar outras propostas e
+  decidir com a comunidade.
+
+### Lição
+
+> Imagem gerada por IA é ótima para conversar sobre o visual e péssima para
+> virar interface. Use como referência: extraia o que é imagem (fundo, logo,
+> cores) e refaça o resto em HTML e CSS.

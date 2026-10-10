@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorteador: Layout 02</title>
+<!--
+  Protótipo de layout 02: tema "quarto gamer neon", a partir das imagens
+  enviadas pela comunidade. Só HTML e CSS, sem nenhuma linha de JavaScript.
+  Os nomes e números são de mentira: aqui só se decide a aparência.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Cores tiradas da imagem de referência ---------- */
+  :root {
+    --ciano: #3ff0f5;
+    --ciano-brilho: rgba(63, 240, 245, 0.55);
+    --coral: #ff4f62;
+    --coral-brilho: rgba(255, 79, 98, 0.55);
+    --fundo: #0b161f;
+    --vidro: rgba(9, 20, 30, 0.62);
+    --texto: #e9fbff;
+    --texto-suave: #9fc3cc;
+    --titulo: 'Audiowide', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 0 16px 24px;
+    color: var(--texto);
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--fundo);
+  }
+  /* A foto do quarto fica atrás de tudo: escurecida e desfocada,
+     para servir de clima sem brigar com o conteúdo */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -20px;
+    z-index: -1;
+    background: url('assets/layout-02/fundo-quarto.webp') center / cover no-repeat;
+    filter: blur(4px) brightness(0.36) saturate(1.3);
+  }
+
+  /* ---------- Efeitos neon reaproveitáveis ---------- */
+  .vidro {
+    background: var(--vidro);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(63, 240, 245, 0.45);
+    border-radius: 18px;
+    box-shadow: 0 0 24px rgba(63, 240, 245, 0.18), inset 0 0 24px rgba(63, 240, 245, 0.06);
+  }
+  .neon-texto { color: var(--ciano); text-shadow: 0 0 6px var(--ciano-brilho), 0 0 18px var(--ciano-brilho); }
+
+  /* ---------- Topo ---------- */
+  .topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 0;
+  }
+  .marca { display: flex; align-items: center; gap: 12px; }
+  .marca img { width: 56px; height: auto; filter: drop-shadow(0 0 10px var(--ciano-brilho)); }
+  .marca h1 { margin: 0; font-family: var(--titulo); font-weight: 400; font-size: clamp(1.2rem, 3vw, 1.7rem); line-height: 1; }
+  .marca small { display: block; margin-top: 4px; color: var(--texto-suave); font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .ao-vivo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--coral);
+    border-radius: 999px;
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 14px var(--coral-brilho);
+  }
+  .ao-vivo::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 8px var(--coral);
+    animation: pulsar 1.4s ease-in-out infinite;
+  }
+  @keyframes pulsar { 50% { opacity: 0.3; } }
+
+  /* ---------- Palco: participantes | roda | prêmio ---------- */
+  .palco {
+    display: grid;
+    grid-template-columns: 290px minmax(0, 1fr) 290px;
+    gap: 28px;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1000px) {
+    .palco { grid-template-columns: 1fr; }
+    .centro { order: -1; }
+  }
+
+  .painel { padding: 18px; }
+  .painel h2 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+  .painel-cabecalho { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .contador { color: var(--texto-suave); font-size: 0.85rem; }
+  .contador b { color: var(--coral); }
+
+  /* Lista de participantes */
+  .participantes ul { list-style: none; margin: 0; padding: 0; }
+  .participantes li { display: flex; align-items: center; gap: 12px; padding: 7px 0; font-weight: 600; }
+  .participantes li + li { border-top: 1px solid rgba(63, 240, 245, 0.1); }
+  .avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--ciano);
+    background: var(--cor, #1b4d5c);
+    font-size: 0.8rem;
+    font-weight: 800;
+    box-shadow: 0 0 8px var(--ciano-brilho);
+  }
+  .mais { margin: 10px 0 0; color: var(--texto-suave); font-size: 0.85rem; text-align: center; }
+
+  /* Prêmio */
+  .premio { text-align: center; }
+  .premio img {
+    display: block;
+    width: 100%;
+    margin: 6px 0 10px;
+    border-radius: 12px;
+    /* bordas da imagem somem no vidro, como na referência */
+    mask-image: radial-gradient(ellipse at center, #000 55%, transparent 75%);
+  }
+  .premio .rotulo { margin: 0; font-size: 1.2rem; font-weight: 800; }
+  .premio .nome-premio { margin: 2px 0 14px; font-size: 1.6rem; font-weight: 800; }
+  .regras { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .regras li { padding: 4px 10px; border: 1px solid rgba(63, 240, 245, 0.35); border-radius: 999px; color: var(--texto-suave); font-size: 0.78rem; }
+
+  /* ---------- Centro: cartaz, roda e botão ---------- */
+  .centro { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+
+  .cartaz {
+    margin: 0;
+    padding: 8px 22px;
+    border: 2px solid var(--ciano);
+    border-radius: 10px;
+    background: rgba(5, 14, 22, 0.8);
+    font-family: var(--titulo);
+    font-weight: 400;
+    font-size: clamp(1.1rem, 3vw, 1.7rem);
+    text-align: center;
+    box-shadow: 0 0 16px var(--ciano-brilho), inset 0 0 12px rgba(63, 240, 245, 0.25);
+    animation: oscilar 6s infinite;
+  }
+  /* Uma piscadinha de letreiro neon de vez em quando */
+  @keyframes oscilar { 0%, 92%, 96%, 100% { opacity: 1; } 94% { opacity: 0.55; } }
+
+  /* A roda é só CSS: um conic-gradient desenha as fatias */
+  .roda {
+    position: relative;
+    width: min(100%, 58vh, 500px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 6px solid var(--ciano);
+    background: repeating-conic-gradient(from -15deg,
+      #0d2430 0 29.5deg, var(--ciano) 29.5deg 30deg,
+      #2a1220 30deg 59.5deg, var(--ciano) 59.5deg 60deg);
+    box-shadow: 0 0 22px var(--ciano-brilho), 0 0 60px rgba(63, 240, 245, 0.25), inset 0 0 30px rgba(63, 240, 245, 0.35);
+    container-type: inline-size; /* permite medir a fonte em "cqi", relativo ao tamanho da roda */
+  }
+  /* Cada nome sai do centro e é girado para a sua fatia (--i = número da fatia) */
+  .roda .nome {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46%;
+    height: 1.4em;
+    margin-top: -0.7em;
+    padding-right: 4%;
+    transform-origin: 0 50%;
+    transform: rotate(calc(var(--i) * 30deg - 90deg));
+    text-align: right;
+    font-family: var(--titulo);
+    font-size: 3.4cqi;
+    line-height: 1.4em;
+    white-space: nowrap;
+    color: #fff;
+    text-shadow: 0 0 6px var(--ciano-brilho);
+  }
+  .ponteiro {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    z-index: 1;
+    transform: translateX(-50%);
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 34px solid var(--coral);
+    filter: drop-shadow(0 0 8px var(--coral));
+  }
+  .miolo {
+    position: absolute;
+    inset: 36%;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 3px solid var(--ciano);
+    background: radial-gradient(circle, #10303c, #050e16);
+    box-shadow: 0 0 18px var(--ciano-brilho), inset 0 0 14px rgba(63, 240, 245, 0.4);
+  }
+  .miolo img { width: 70%; height: auto; }
+
+  /* Botão com borda dupla: coral por fora, ciano por dentro */
+  .botao {
+    display: inline-block;
+    padding: 14px 44px;
+    border: 2px solid var(--ciano);
+    border-radius: 16px;
+    background: rgba(10, 16, 28, 0.88);
+    color: #fff;
+    font-size: clamp(1.2rem, 3vw, 1.7rem);
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow:
+      0 0 0 6px #0a101c,
+      0 0 0 8px var(--coral),
+      0 0 30px var(--coral-brilho),
+      inset 0 0 16px var(--ciano-brilho);
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .botao:hover { box-shadow: 0 0 0 6px #0a101c, 0 0 0 8px var(--coral), 0 0 44px var(--coral), inset 0 0 22px var(--ciano-brilho); }
+  .botao:active { transform: scale(0.97); }
+  .botao:focus-visible { outline: 3px solid #fff; outline-offset: 12px; }
+
+  .rodape { max-width: 1400px; margin: 28px auto 0; color: var(--texto-suave); font-size: 0.8rem; text-align: center; }
+  .rodape a { color: var(--ciano); }
+
+  /* ---------- Tela do vencedor ----------
+     Sem JavaScript: o botão é um link para #revelacao, e o seletor :target
+     mostra esta tela quando o endereço termina em #revelacao. */
+  .revelacao {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: none;
+    place-items: center;
+    padding: 16px;
+    background: radial-gradient(circle, rgba(13, 36, 48, 0.94), rgba(3, 8, 13, 0.98));
+    backdrop-filter: blur(10px);
+    text-align: center;
+  }
+  .revelacao:target { display: grid; }
+  .revelacao img { width: min(160px, 35vw); filter: drop-shadow(0 0 24px var(--ciano-brilho)); animation: surgir 0.6s ease-out; }
+  .revelacao .chamada { margin: 18px 0 0; color: var(--texto-suave); font-size: clamp(1rem, 2.5vw, 1.4rem); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .revelacao .vencedor {
+    margin: 8px 0;
+    font-family: var(--titulo);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 10vw, 6.5rem);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+    color: #fff;
+    text-shadow: 0 0 10px var(--ciano), 0 0 30px var(--ciano-brilho), 0 0 70px var(--ciano-brilho);
+  }
+  .revelacao .levou { margin: 0 0 30px; font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 800; }
+  .revelacao .levou b { color: var(--coral); text-shadow: 0 0 12px var(--coral-brilho); }
+  @keyframes surgir { from { transform: scale(0.4) rotate(-12deg); opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ao-vivo::before, .cartaz, .revelacao img { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="marca">
+    <img src="assets/layout-02/logo-presente.webp" alt="">
+    <div>
+      <h1 class="neon-texto">Sorteador</h1>
+      <small>da comunidade</small>
+    </div>
+  </div>
+  <span class="ao-vivo">AO VIVO</span>
+</header>
+
+<main class="palco">
+  <section class="painel vidro participantes" aria-labelledby="titulo-participantes">
+    <div class="painel-cabecalho">
+      <h2 id="titulo-participantes">Participantes</h2>
+      <span class="contador"><b>●</b> 128 na live</span>
+    </div>
+    <ul>
+      <li><span class="avatar" style="--cor:#1f6f5c">VE</span> verongamer</li>
+      <li><span class="avatar" style="--cor:#2b4f8f">DA</span> davigamer</li>
+      <li><span class="avatar" style="--cor:#8f2b4a">LI</span> gamerlilia</li>
+      <li><span class="avatar" style="--cor:#5a3a8f">DM</span> damingamer</li>
+      <li><span class="avatar" style="--cor:#2b7a8f">VK</span> viktav23</li>
+      <li><span class="avatar" style="--cor:#8f5a2b">BH</span> bhabela132</li>
+      <li><span class="avatar" style="--cor:#3d8f2b">NA</span> nandaplays</li>
+    </ul>
+    <p class="mais">+ 121 participantes</p>
+  </section>
+
+  <section class="centro">
+    <p class="cartaz neon-texto">SORTEADOR ATIVO</p>
+    <div class="roda" aria-label="Roda do sorteio">
+      <span class="ponteiro" aria-hidden="true"></span>
+      <span class="nome" style="--i:0">verongamer</span>
+      <span class="nome" style="--i:1">davigamer</span>
+      <span class="nome" style="--i:2">gamerlilia</span>
+      <span class="nome" style="--i:3">damingamer</span>
+      <span class="nome" style="--i:4">viktav23</span>
+      <span class="nome" style="--i:5">bhabela132</span>
+      <span class="nome" style="--i:6">nandaplays</span>
+      <span class="nome" style="--i:7">caiocodes</span>
+      <span class="nome" style="--i:8">jujubits</span>
+      <span class="nome" style="--i:9">teteu.dev</span>
+      <span class="nome" style="--i:10">mari404</span>
+      <span class="nome" style="--i:11">pixelzé</span>
+      <div class="miolo"><img src="assets/layout-02/logo-presente.webp" alt=""></div>
+    </div>
+    <a class="botao" href="#revelacao">Iniciar Sorteio</a>
+  </section>
+
+  <section class="painel vidro premio" aria-labelledby="titulo-premio">
+    <h2 id="titulo-premio" class="rotulo">Prêmio do dia</h2>
+    <img src="assets/layout-02/premio-set-gamer.webp" alt="Mesa gamer com computador, monitores e cadeira">
+    <p class="nome-premio neon-texto">Set Gamer</p>
+    <ul class="regras">
+      <li>1 vencedor</li>
+      <li>sem repetição</li>
+      <li>chances iguais</li>
+    </ul>
+  </section>
+</main>
+
+<p class="rodape">
+  Protótipo de layout 02 · tema “quarto gamer neon”, com imagens enviadas pela comunidade · só HTML e CSS ·
+  <a href="index.html">ver o sorteador atual</a>
+</p>
+
+<!-- Tela do vencedor: aparece ao clicar em "Iniciar Sorteio" -->
+<section id="revelacao" class="revelacao" aria-label="Vencedor">
+  <div>
+    <img src="assets/layout-02/logo-presente.webp" alt="">
+    <p class="chamada">E quem leva é…</p>
+    <p class="vencedor">gamerlilia</p>
+    <p class="levou">levou o <b>Set Gamer</b>! 🎉</p>
+    <a class="botao" href="#">Voltar</a>
+  </div>
+</section>
+
+</body>
+</html>
