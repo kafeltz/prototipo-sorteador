@@ -202,7 +202,9 @@
   details.transparencia a { color: var(--ouro); }
 
   /* ---------- Modo apresentação: some o painel de edição, roda cresce ---------- */
-  body.apresentacao .letreiro { margin-bottom: 12px; padding: 22px 16px 16px; }
+  /* Letreiro mais baixo: na tela cheia, cada pixel de altura vai para a roda */
+  body.apresentacao .letreiro { margin: 12px auto; padding: 20px 16px 14px; }
+  body.apresentacao .letreiro p { display: none; }
   body.apresentacao #painel-config { display: none; }
   /* Flexbox: a roda fica no centro da tela; os resultados vão para a lateral direita */
   body.apresentacao .palco {
@@ -213,14 +215,16 @@
   body.apresentacao .centro { flex: 1; }
   body.apresentacao .palco > .painel:last-child {
     position: fixed;
-    top: 168px; /* logo abaixo do letreiro */
+    top: 118px; /* logo abaixo do letreiro */
     right: 16px;
     bottom: 16px;
     width: 320px;
     overflow-y: auto;
   }
-  /* largura limitada pela folga dos lados (painel de resultados) e pela altura visível */
-  body.apresentacao .roda-wrap { width: min(100%, 78vh, calc(100vw - 704px), calc(100vh - 176px)); }
+  /* Largura limitada pela folga dos lados (painel de resultados) e pela altura
+     visível. Da altura da tela saem o letreiro (~120px) e, abaixo da roda, o
+     botão SORTEAR e a linha de status (~140px): o botão não pode sumir da tela. */
+  body.apresentacao .roda-wrap { width: min(100%, calc(100vw - 704px), calc(100vh - 260px)); }
   @media (max-width: 1100px) {
     body.apresentacao .palco { flex-direction: column; }
     body.apresentacao .palco > .painel:last-child {
