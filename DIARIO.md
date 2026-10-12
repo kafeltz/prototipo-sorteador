@@ -476,3 +476,43 @@ direitos autorais, estamos cientes disso.
 > muda nada e que você consegue provar que não mudou. É o commit mais chato de
 > fazer e o mais fácil de revisar, e foi ele que fez cada tema novo caber num
 > bloco só.
+
+---
+
+## Ato 10: A imagem para compartilhar, e os casos extremos
+
+**Data:** 12/10/2026
+
+### O que eu pedi
+
+O último item de código da issue: uma imagem dos vencedores para postar nas
+redes, uma das sugestões da organização.
+
+### O que foi feito
+
+Cada sorteio do histórico ganhou um botão **"Imagem"**, que baixa um PNG no
+formato retrato do Instagram (1080×1350) com o título, a data, os vencedores e
+o comprovante de cada um. A imagem é desenhada no próprio navegador, sem
+servidor, e segue o tema escolhido. Isso só foi barato porque as cores já
+estavam todas em variáveis, desde o Ato 9.
+
+### Como conferi
+
+Em vez de testar só o caso comum, a IA gerou a imagem nos **extremos**: um
+vencedor só, um nome enorme ("Maria Aparecida dos Santos Albuquerque
+Ferreira") e vinte vencedores. Cada extremo mostrou um defeito diferente:
+
+- com um vencedor, o nome ficava solto no meio de um espaço vazio;
+- o nome enorme saía **espremido**, porque o canvas achata o texto que não
+  cabe. Agora a letra diminui primeiro, como já acontecia na roda;
+- com vinte, os comprovantes ficavam ilegíveis. Agora a imagem mostra até dez
+  nomes e "+ N vencedores".
+
+O botão de download foi testado com um sorteio de verdade. O teste travou duas
+vezes, e nas duas a falha era do teste, não do código. Registrar cada etapa
+mostrou exatamente onde ele parava.
+
+### Lição
+
+> O caso comum quase sempre funciona. Os defeitos moram nos extremos: zero,
+> um, muitos e o texto enorme. Teste esses primeiro.
