@@ -7,7 +7,9 @@ e transparente**.
 É um projeto da comunidade e também um **experimento educacional**: está sendo
 construído com ajuda de IA (Claude Code), e cada passo fica registrado no
 [DIARIO.md](DIARIO.md) para quem quiser aprender como esse tipo de trabalho
-acontece na prática.
+acontece na prática. As regras por baixo dos panos (como o sorteio decide, por
+que não tem viés, como os temas funcionam) estão em diagramas no
+[COMO-FUNCIONA.md](COMO-FUNCIONA.md).
 
 ## Como rodar
 

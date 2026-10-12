@@ -516,3 +516,55 @@ mostrou exatamente onde ele parava.
 
 > O caso comum quase sempre funciona. Os defeitos moram nos extremos: zero,
 > um, muitos e o texto enorme. Teste esses primeiro.
+
+---
+
+## Ato 11: O que o humano precisa entender
+
+**Data:** 12/10/2026
+
+### O que eu pedi
+
+Com o código pronto, a IA rascunhou o roteiro da apresentação. Pedi que ele
+tivesse **fluxogramas e diagramas de sequência** explicando os processos. O
+motivo: o código foi feito pela IA, e quem não escreveu não vai lembrar dele. O
+que uma pessoa precisa aprender são as **regrinhas por baixo dos panos**.
+
+### O que foi feito
+
+Um arquivo novo, [`COMO-FUNCIONA.md`](COMO-FUNCIONA.md), com três diagramas:
+um sorteio do clique ao confete, o sorteio sem viés e a troca de tema. Depois
+de cada um vem **a regra** que ele ensina e em que funções ela está no código.
+
+Antes de desenhar, a IA leu as funções, para não desenhar "de cabeça". Isso
+achou uma regra escondida: a animação da roda usa `Math.random`, o mesmo que
+o Ato 2 diz que não serve para sortear. Ali ele é só enfeite, porque desloca o
+ponto de parada sempre **dentro** da fatia já sorteada. Sem o diagrama, alguém
+poderia "consertar" isso, ou pior, copiar o `Math.random` para o sorteio.
+
+Os diagramas foram desenhados pela mesma biblioteca que o GitHub usa, para
+conferir que nenhum quebra.
+
+### Uma ideia que mudou de forma
+
+Tive outra ideia: para ser aleatório de verdade, consultar uma API pública,
+talvez um relógio atômico. A IA discordou com argumentos:
+
+- o gerador do navegador **já é** aleatório para efeitos práticos; uma API só
+  troca a confiança no navegador pela confiança na API;
+- um relógio é o oposto de aleatório: a hora exata é previsível.
+
+Mas a intuição tinha valor. O que falta não é **acaso**, é **prova**: hoje o
+público precisa acreditar que o organizador não sorteou de novo. Existem
+**faróis públicos de aleatoriedade** que publicam números assinados de tempos
+em tempos. Anunciando antes a lista e qual número futuro será usado, qualquer
+pessoa pode refazer a conta depois. Virou a
+[issue #4](https://github.com/kafeltz/prototipo-sorteador/issues/4), aberta à
+comunidade, e sem precisar de servidor.
+
+### Lição
+
+> A IA escreve o código; o entendimento tem que ser humano. Diagramas guardam
+> as regras que não podem ser quebradas. E "mais aleatório" não é o mesmo que
+> "verificável": antes de buscar a solução, descubra qual é o problema de
+> verdade.
