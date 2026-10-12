@@ -19,7 +19,7 @@ navegador.
 - Colar uma lista de nomes ou importar CSV, com aviso de nomes repetidos
 - Número de vencedores, com ou sem repetição, duração do giro, som liga/desliga
 - Contagem 3-2-1, roda girando com "tique", fanfarra e confete
-- Histórico com comprovante de cada sorteio e botão para copiar
+- Histórico com comprovante de cada sorteio, guardado no navegador (não some ao recarregar), com botões para copiar e limpar
 - Modo apresentação em tela cheia, para lives e encontros
 
 ## Como garantimos que o sorteio é justo

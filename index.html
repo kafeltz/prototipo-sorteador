@@ -196,6 +196,7 @@
   .sorteio li strong { font-size: 1.05rem; }
   .comprovante { display: block; font-size: 0.78rem; color: var(--texto-suave); font-family: ui-monospace, monospace; }
   .vazio { color: var(--texto-suave); font-size: 0.9rem; }
+  .botoes-pequenos button { padding: 6px 10px; font-size: 0.85rem; }
 
   details.transparencia { margin-top: 22px; font-size: 0.9rem; line-height: 1.5; }
   details.transparencia summary { cursor: pointer; font-weight: 900; color: var(--ouro); }
@@ -324,7 +325,10 @@
   <aside class="painel">
     <div class="linha">
       <h2 style="margin:0">Resultados</h2>
-      <button type="button" id="btn-copiar">Copiar</button>
+      <span class="botoes-pequenos">
+        <button type="button" id="btn-copiar">Copiar</button>
+        <button type="button" id="btn-limpar">Limpar</button>
+      </span>
     </div>
     <div id="historico"></div>
 
@@ -392,6 +396,32 @@ const estado = {
   girando: false,
   rotacao: 0,       // ângulo atual da roda, em radianos
 };
+
+// O histórico fica guardado no próprio navegador (localStorage), para não
+// sumir ao recarregar a página. Nada vai para servidor nenhum.
+const CHAVE_HISTORICO = 'sorteador:historico';
+
+function salvarHistorico() {
+  try {
+    localStorage.setItem(CHAVE_HISTORICO, JSON.stringify(estado.sorteios));
+  } catch {
+    // Navegador em modo privado ou sem espaço: o sorteio segue, só não fica guardado
+  }
+}
+
+function carregarHistorico() {
+  try {
+    const salvos = JSON.parse(localStorage.getItem(CHAVE_HISTORICO)) ?? [];
+    // O JSON guarda datas como texto; aqui elas voltam a ser Date
+    estado.sorteios = salvos.map((s) => ({
+      ...s,
+      inicio: new Date(s.inicio),
+      resultados: s.resultados.map((r) => ({ ...r, horario: new Date(r.horario) })),
+    }));
+  } catch {
+    estado.sorteios = [];
+  }
+}
 
 // "Ana Souza", "ana souza" e "Ána  Souza" viram a mesma chave
 function chave(nome) {
@@ -766,6 +796,8 @@ async function sortear() {
     horario: new Date(),
   });
 
+  salvarHistorico();
+
   revelar(vencedor.nome, posicao, qtdVencedores());
   estado.girando = false;
   renderizarHistorico();
@@ -895,6 +927,15 @@ $('btn-copiar').addEventListener('click', async () => {
   setTimeout(() => ($('btn-copiar').textContent = 'Copiar'), 1500);
 });
 
+$('btn-limpar').addEventListener('click', () => {
+  if (estado.girando || estado.sorteios.length === 0) return;
+  if (!confirm('Apagar todo o histórico de sorteios deste navegador?')) return;
+  estado.sorteios = [];
+  salvarHistorico();
+  novoSorteio();
+  renderizarHistorico();
+});
+
 $('btn-apresentacao').addEventListener('click', () => {
   const ativo = document.body.classList.toggle('apresentacao');
   if (ativo) document.documentElement.requestFullscreen?.().catch(() => {});
@@ -907,6 +948,7 @@ document.addEventListener('fullscreenchange', () => {
 // Redesenha quando a fonte do título terminar de carregar
 document.fonts?.ready.then(() => desenharRoda());
 
+carregarHistorico();
 atualizarTela();
 renderizarHistorico();
 </script>
