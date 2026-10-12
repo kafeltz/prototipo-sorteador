@@ -327,3 +327,90 @@ precisar desta conversa.
 > Uma issue bem escrita é a passagem de bastão. O teste é simples: dá para
 > entregar a issue a outra pessoa, ou a outra sessão, sem explicar nada de
 > boca?
+
+---
+
+## Ato 7: Aplicando a issue como um aluno, um item por vez
+
+**Data:** 12/10/2026
+
+### O que eu pedi
+
+Fiz de conta que era um aluno que pegou a issue do Show & Tell para resolver.
+A issue mandava primeiro mapear o diário nos cinco temas da apresentação e me
+trazer a decisão de escopo antes de implementar. Aprovei tudo, mas com uma
+condição: **uma coisa de cada vez, como um humano faria**. Um robô resolveria
+tudo de uma vez, rápido, e ninguém conseguiria acompanhar nem revisar.
+
+### O ritmo
+
+Para cada item: ver o defeito acontecer, entender a causa, corrigir, conferir,
+fazer um commit pequeno e me mostrar. Só depois do meu ok, o próximo.
+
+### Item (a): o botão SORTEAR no modo apresentação
+
+O modo apresentação, que um participante já tinha centralizado no
+[PR #1](https://github.com/kafeltz/prototipo-sorteador/pull/1), ainda tinha um
+defeito: o botão SORTEAR ficava abaixo da borda da tela.
+
+- **Medir antes de corrigir mostrou um problema maior.** A issue falava de
+  1280×720, mas o botão sumia também em 1366×768 e até em 1920×1080.
+- **A causa:** a conta do tamanho da roda descontava da altura da tela só o
+  letreiro, e esquecia o botão e a linha de status embaixo dela.
+- **A correção:** letreiro mais baixo na tela cheia e uma conta que desconta
+  também o espaço do botão. Medido de novo nas três resoluções.
+
+### Item (b): o histórico que não some
+
+O histórico ficava só na memória da página: recarregou, sumiu. Agora fica
+guardado no próprio navegador (`localStorage`), sem servidor nenhum, e ganhou
+um botão "Limpar", que pede confirmação.
+
+O primeiro teste disse que nada tinha sido guardado. Em vez de "consertar" o
+código às cegas, a IA investigou e descobriu que o defeito estava **no teste**:
+o Chrome sem janela, usado para testar, não roda a animação da roda, então o
+sorteio nunca terminava. Trocada a animação por um relógio comum só no teste,
+ficou provado que o código estava certo. Depois vieram os casos que ninguém
+lembra de testar: o botão "Limpar" e um dado estragado no navegador, que não
+pode quebrar a página.
+
+### Lição
+
+> Devagar e um de cada vez não é perda de tempo: cada item pequeno pode ser
+> visto, testado e revisado por uma pessoa. E antes de corrigir, confira se é o
+> código ou o teste que está errado.
+
+---
+
+## Ato 8: O servidor fica para a comunidade
+
+**Data:** 12/10/2026
+
+### O que aconteceu
+
+Com o histórico guardado no navegador, apareceu a pergunta seguinte: não está
+na hora de ter um servidor (um "backend") para guardar os dados do projeto?
+
+### O que foi decidido
+
+- **Primeiro o "para quê", depois o "com quê".** O navegador já guarda o
+  histórico de quem sorteia. Um servidor só se justifica para o que o
+  navegador sozinho não faz: uma página pública de vencedores, um sorteio que
+  o público consiga conferir, ou um histórico compartilhado entre
+  organizadores. Se nada disso for preciso, o servidor é complexidade sem
+  motivo.
+- **Não é para antes do Show & Tell.** O prazo é curto, e um servidor muda a
+  natureza do projeto: hoje basta abrir um arquivo.
+- **Vira tarefa aberta à comunidade**, na
+  [issue #3](https://github.com/kafeltz/prototipo-sorteador/issues/3), com a
+  tecnologia em aberto: comparar abordagens diferentes é parte do desafio. A
+  decisão final continua comigo.
+- **Os nomes das pessoas são dados pessoais.** No navegador, eles ficam com
+  quem sorteia; num servidor, passam a ser guardados pelo projeto, e entra em
+  jogo a LGPD. Quem pegar a tarefa precisa responder quem vê, por quanto tempo
+  fica guardado e como apagar, antes de escrever código.
+
+### Lição
+
+> Nem toda ideia boa precisa ser feita agora, nem por você. Escrever a pergunta
+> certa numa issue pública transforma uma pendência num convite.
