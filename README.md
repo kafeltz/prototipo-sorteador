@@ -20,6 +20,7 @@ navegador.
 - Número de vencedores, com ou sem repetição, duração do giro, som liga/desliga
 - Contagem 3-2-1, roda girando com "tique", fanfarra e confete
 - Histórico com comprovante de cada sorteio, guardado no navegador (não some ao recarregar), com botões para copiar e limpar
+- Imagem de cada sorteio para compartilhar nas redes (PNG 1080×1350, nas cores do tema escolhido)
 - Modo apresentação em tela cheia, para lives e encontros
 - Temas visuais: Clássico, Estúdio (inspirado na Roda a Roda) e Manhã (inspirado no Bom Dia & Cia); a escolha fica guardada no navegador
 

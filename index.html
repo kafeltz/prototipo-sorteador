@@ -321,6 +321,8 @@
 
   /* ---------- Resultados ---------- */
   .sorteio h3 { margin: 14px 0 6px; font-size: 0.9rem; color: var(--texto-suave); }
+  .sorteio .linha { flex-wrap: nowrap; margin: 14px 0 6px; }
+  .sorteio .linha h3 { margin: 0; }
   .sorteio ol { margin: 0; padding-left: 22px; }
   .sorteio li { margin: 6px 0; }
   .sorteio li strong { font-size: 1.05rem; }
@@ -1009,6 +1011,14 @@ function renderizarHistorico() {
     bloco.className = 'sorteio';
     const titulo = document.createElement('h3');
     titulo.textContent = `Sorteio #${s.numero} · ${hora(s.inicio)}`;
+    const btnImagem = document.createElement('button');
+    btnImagem.type = 'button';
+    btnImagem.textContent = 'Imagem';
+    btnImagem.title = 'Baixar uma imagem deste sorteio para compartilhar';
+    btnImagem.addEventListener('click', () => baixarImagem(s));
+    const cabecalho = document.createElement('div');
+    cabecalho.className = 'linha botoes-pequenos';
+    cabecalho.append(titulo, btnImagem);
     const ol = document.createElement('ol');
     for (const r of s.resultados) {
       const li = document.createElement('li');
@@ -1020,7 +1030,7 @@ function renderizarHistorico() {
       li.append(nome, prova);
       ol.append(li);
     }
-    bloco.append(titulo, ol);
+    bloco.append(cabecalho, ol);
     alvo.append(bloco);
   }
 }
@@ -1030,6 +1040,118 @@ function textoDosResultados() {
     `Sorteio #${s.numero} (${s.inicio.toLocaleString('pt-BR')})\n` +
     s.resultados.map((r) => `${r.posicao}º ${r.nome} — nº ${r.sorteado} de ${r.totalNaRoda}`).join('\n')
   ).join('\n\n');
+}
+
+/* =====================================================================
+   7b. IMAGEM PARA COMPARTILHAR
+   Desenhada num canvas com as cores do tema escolhido e baixada como PNG.
+   1080×1350 é o formato retrato (4:5) do Instagram.
+   ===================================================================== */
+
+const MAX_NA_IMAGEM = 10; // acima disso, a imagem mostra "+ N vencedores"
+
+async function gerarImagem(sorteio) {
+  const W = 1080, H = 1350;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const titulo = css('--titulo');
+  const fonte = css('--fonte');
+  const caixaAlta = (t) => (css('--titulo-maiusculas') === 'uppercase' ? t.toUpperCase() : t);
+  await Promise.all([document.fonts.load(`80px ${titulo}`), document.fonts.load(`700 40px ${fonte}`)]);
+
+  // Texto com a sombra "de letreiro" do tema por baixo. Nome comprido: primeiro
+  // diminui a letra (até a metade); só se ainda não couber, o canvas espreme.
+  function textoComSombra(texto, x, y, tamanho, larguraMax) {
+    ctx.font = `${tamanho}px ${titulo}`;
+    const largura = ctx.measureText(texto).width;
+    if (largura > larguraMax) {
+      tamanho = Math.max(tamanho / 2, Math.floor(tamanho * larguraMax / largura));
+      ctx.font = `${tamanho}px ${titulo}`;
+    }
+    ctx.fillStyle = css('--sombra-titulo');
+    ctx.fillText(texto, x, y + tamanho * 0.08, larguraMax);
+    ctx.fillStyle = css('--ouro');
+    ctx.fillText(texto, x, y, larguraMax);
+  }
+
+  // Fundo: o mesmo degradê de palco da página
+  const fundo = ctx.createRadialGradient(W / 2, H * 1.1, 0, W / 2, H * 1.1, H);
+  fundo.addColorStop(0, css('--palco-2'));
+  fundo.addColorStop(1, css('--palco'));
+  ctx.fillStyle = fundo;
+  ctx.fillRect(0, 0, W, H);
+
+  // Moldura com lâmpadas, como o letreiro
+  ctx.strokeStyle = css('--ouro');
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.roundRect(40, 40, W - 80, H - 80, 36);
+  ctx.stroke();
+  ctx.fillStyle = css('--lampada');
+  for (let x = 90; x <= W - 90; x += 45) {
+    for (const y of [72, H - 72]) {
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  // Cabeçalho
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  textoComSombra(caixaAlta('Sorteador'), W / 2, 210, 96, W - 200);
+  textoComSombra(caixaAlta('do Auditório'), W / 2, 310, 96, W - 200);
+  ctx.fillStyle = css('--texto-suave');
+  ctx.font = `700 36px ${fonte}`;
+  const data = sorteio.inicio.toLocaleDateString('pt-BR');
+  ctx.fillText(`Sorteio #${sorteio.numero} · ${data} · ${hora(sorteio.inicio)}`, W / 2, 390);
+
+  // Vencedores: a letra diminui conforme a quantidade
+  const todos = sorteio.resultados;
+  const mostrados = todos.length > MAX_NA_IMAGEM ? todos.slice(0, MAX_NA_IMAGEM - 1) : todos;
+  const sobra = todos.length - mostrados.length;
+  const linhas = mostrados.length + (sobra ? 1 : 0);
+  const topo = 460, base = H - 190;
+  if (todos.length === 1) {
+    ctx.fillStyle = css('--texto-suave');
+    ctx.font = `900 48px ${fonte}`;
+    ctx.fillText('E quem levou foi…', W / 2, 600);
+  }
+  const altura = Math.min(220, (base - topo) / linhas);
+  let y = topo + (base - topo - altura * linhas) / 2;
+
+  for (const r of mostrados) {
+    const nome = todos.length > 1 ? `${r.posicao}º ${r.nome}` : r.nome;
+    textoComSombra(caixaAlta(nome), W / 2, y + altura * 0.6, Math.round(altura * 0.5), W - 180);
+    ctx.fillStyle = css('--texto-suave');
+    ctx.font = `${Math.max(18, Math.round(altura * 0.16))}px ui-monospace, monospace`;
+    ctx.fillText(`nº ${r.sorteado} de ${r.totalNaRoda} · ${hora(r.horario)}`, W / 2, y + altura * 0.85);
+    y += altura;
+  }
+  if (sobra) {
+    ctx.fillStyle = css('--texto');
+    ctx.font = `700 ${Math.round(altura * 0.4)}px ${fonte}`;
+    ctx.fillText(`+ ${sobra} vencedores`, W / 2, y + altura * 0.6);
+  }
+
+  // Rodapé: como o resultado foi decidido
+  ctx.fillStyle = css('--texto-suave');
+  ctx.font = `700 28px ${fonte}`;
+  ctx.fillText('Sorteado com o gerador criptográfico do navegador', W / 2, H - 125);
+  return canvas;
+}
+
+async function baixarImagem(sorteio) {
+  const canvas = await gerarImagem(sorteio);
+  canvas.toBlob((png) => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(png);
+    link.download = `sorteio-${sorteio.numero}.png`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  });
 }
 
 /* =====================================================================
