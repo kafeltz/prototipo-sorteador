@@ -286,3 +286,44 @@ O layout pode sofrer problemas com direitos autorais, estamos cientes disso.
 > Quando o código chega no limite, troque de ferramenta: a IA de texto escreve
 > o pedido, a IA de imagem gera a foto, e o código cuida do resto. E pense no
 > encaixe antes de gerar: proporção, fundo e o que o código já faz.
+
+---
+
+## Ato 6: O desafio ganha data, e a tarefa passa para outra sessão
+
+**Data:** 12/10/2026
+
+### O que aconteceu
+
+A organização da comunidade transformou a ideia num desafio formal, com
+apresentação no **Show & Tell de 20/10, às 20h**. O recado é claro: o objetivo
+não é só entregar um projeto funcionando, e sim **mostrar o processo**, em cinco
+temas: planejamento, ferramentas, desenvolvimento, desafios e aprendizados.
+
+### O que eu pedi
+
+Aproveitar todo o contexto da conversa para criar uma **issue** no GitHub, de
+modo que outra sessão de IA (ou outra pessoa) possa continuar o trabalho sem
+precisar desta conversa.
+
+### O que foi decidido
+
+- **Uma issue para preparar a apresentação**, e não para "terminar o
+  sorteador". Ela compara o que a organização sugeriu com o que já existe
+  (✅ pronto, ⚠️ parcial, ❌ faltando) e lista passos numerados: mapear o diário
+  nos cinco temas, **me levar a decisão de escopo antes de implementar**,
+  escrever o roteiro da apresentação e ensaiar numa resolução de projetor.
+- **O começo é para gente ler.** A issue abre com um resumo em português
+  corrido (o que falta, o risco e o tamanho do trabalho), sem caminhos de
+  arquivo nem jargão. O detalhe técnico vai para o fim.
+- **O que eu decido fica comigo.** A issue diz o que é tarefa de quem executa
+  e o que é decisão minha: escopo, texto do diário e a apresentação em si.
+- **Cuidado com o que é público.** A mensagem da organização tinha nome e ID
+  de Discord de outras pessoas; isso não foi para a issue.
+
+### Lição
+
+> A conversa com a IA não é o lugar para guardar trabalho pendente: ela acaba.
+> Uma issue bem escrita é a passagem de bastão. O teste é simples: dá para
+> entregar a issue a outra pessoa, ou a outra sessão, sem explicar nada de
+> boca?
