@@ -53,8 +53,8 @@ Começar mostrando, não explicando. O gancho é ver funcionando.
 | **Chrome sem janela** | A IA tira capturas de tela para **provar** que ficou certo. |
 | **Leonardo.ai** | Gerar a foto do boneco, onde o código chegou no limite. |
 
-> ✍️ **Para eu escrever:** por que escolhi o Claude Code, e não outra
-> ferramenta. Uma ou duas frases minhas.
+**Por que o Claude Code:** porque já é a ferramenta que eu uso no dia a dia, e
+o desafio era mostrar como eu realmente trabalho, não testar ferramenta nova.
 
 ### A arquitetura: abrindo o capô
 
@@ -146,15 +146,18 @@ O que eu descobri (das lições do diário):
 - Devagar e um de cada vez: cada passo pequeno pode ser revisado por uma pessoa.
 - Os defeitos moram nos extremos.
 
-> ✍️ **Para eu escrever: o que eu faria diferente.** A organização pede isso
-> explicitamente. Algumas ideias para escolher ou descartar:
-> - Ter combinado o ritmo "um item por vez" desde o primeiro dia, e não só no
->   Ato 7.
-> - Ter guardado as cores em variáveis desde o protótipo, para não precisar do
->   passo de arrumação depois.
-> - Ter testado em resolução de projetor desde o começo: o botão sumido só foi
->   visto quando alguém mediu.
-> - Ter gerado a imagem do boneco antes de tentar desenhá-lo em código.
+**O que eu faria diferente:**
+
+- **Desenharia um fluxograma antes de sair programando.** Os diagramas do
+  `COMO-FUNCIONA.md` vieram no fim, para explicar o que já existia; feitos
+  antes, teriam guiado a IA desde o começo.
+- Combinaria o ritmo "um item por vez" desde o primeiro dia, e não só no
+  Ato 7.
+- Guardaria as cores em variáveis desde o protótipo, sem precisar do passo de
+  arrumação depois.
+- Testaria em resolução de projetor desde o começo: o botão sumido só foi
+  visto quando alguém mediu.
+- Geraria a imagem do boneco antes de tentar desenhá-lo em código.
 
 Mensagem final: *"A IA escreveu o código; o entendimento tem que ser meu. Por
 isso o diário e os diagramas: eles guardam o que uma pessoa precisa saber
