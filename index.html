@@ -8,17 +8,57 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  /* ---------- Cores do "palco" (troque aqui para mudar o tema) ---------- */
+  /* ---------- Tema: todas as cores e fontes moram aqui ----------
+     Um tema novo é só outro bloco com estas mesmas variáveis. A roda e o
+     confete, desenhados em JavaScript, também leem daqui.
+     As versões "-rgb" (só os números) existem para fazer transparências:
+     rgba(var(--ouro-rgb), 0.35) é o ouro com 35% de opacidade. */
   :root {
+    /* Base */
     --palco: #12062e;
     --palco-2: #2e0f66;
     --ouro: #ffc93c;
+    --ouro-rgb: 255, 201, 60;
     --vermelho: #e63946;
+    --vermelho-rgb: 230, 57, 70;
     --texto: #fff8e7;
     --texto-suave: #cbbcf0;
     --painel: rgba(255, 255, 255, 0.06);
-    --borda: rgba(255, 201, 60, 0.35);
+    --borda: rgba(var(--ouro-rgb), 0.35);
     --titulo: 'Bungee', 'Arial Black', system-ui, sans-serif;
+    --fonte: 'Nunito', system-ui, sans-serif;
+    --sombra-titulo: #a0331f;
+
+    /* Letreiro */
+    --letreiro-fundo: linear-gradient(#3b1580, #22094d);
+    --lampada: #fff6c4;
+
+    /* Botão SORTEAR */
+    --botao-topo: #ff5a5f;
+    --botao-base: #c1121f;
+    --botao-hover-topo: #ff6b70;
+    --botao-hover-base: #d0142a;
+    --botao-degrau: #7a0a12;
+    --botao-borda: #fff3b0;
+    --botao-texto: #fff;
+
+    /* Tela de suspense e do vencedor */
+    --overlay-fundo: radial-gradient(circle, rgba(46, 15, 102, 0.85), rgba(10, 3, 26, 0.95));
+
+    /* Roda (lida pelo JavaScript): fatias em sequência, aro, pinos e miolo */
+    --fatias: #e63946, #ffb703, #1d70e0, #2a9d8f, #8e44ad, #f77f00;
+    --nome-na-fatia: #ffffff;
+    --aro-claro: #fff3b0;
+    --aro-meio: #ffc93c;
+    --aro-escuro: #a8650a;
+    --pino: #ffffff;
+    --miolo-claro: #fff3b0;
+    --miolo-escuro: #c98a00;
+    --miolo-simbolo: #a0331f;
+    --roda-vazia: #2e0f66;
+
+    /* Confete (lido pelo JavaScript) */
+    --confete: #ffc93c, #e63946, #1d70e0, #2a9d8f, #ffffff, #8e44ad;
   }
 
   * { box-sizing: border-box; }
@@ -27,12 +67,12 @@
     margin: 0;
     min-height: 100vh;
     color: var(--texto);
-    font-family: 'Nunito', system-ui, sans-serif;
+    font-family: var(--fonte);
     background-color: var(--palco);
     /* Holofotes do auditório: gradientes radiais por cima do fundo escuro */
     background-image:
-      radial-gradient(ellipse at 15% -10%, rgba(255, 201, 60, 0.22), transparent 45%),
-      radial-gradient(ellipse at 85% -10%, rgba(230, 57, 70, 0.22), transparent 45%),
+      radial-gradient(ellipse at 15% -10%, rgba(var(--ouro-rgb), 0.22), transparent 45%),
+      radial-gradient(ellipse at 85% -10%, rgba(var(--vermelho-rgb), 0.22), transparent 45%),
       radial-gradient(ellipse at 50% 120%, var(--palco-2), var(--palco) 70%);
     background-attachment: fixed;
     padding: 0 16px 32px;
@@ -47,8 +87,8 @@
     padding: 30px 16px 24px;
     border: 3px solid var(--ouro);
     border-radius: 18px;
-    background: linear-gradient(#3b1580, #22094d);
-    box-shadow: 0 0 32px rgba(255, 201, 60, 0.35);
+    background: var(--letreiro-fundo);
+    box-shadow: 0 0 32px rgba(var(--ouro-rgb), 0.35);
   }
   .letreiro::before,
   .letreiro::after {
@@ -57,7 +97,7 @@
     left: 14px;
     right: 14px;
     height: 10px;
-    background: radial-gradient(circle, #fff6c4 0 3px, var(--ouro) 4px, transparent 5px) 0 50% / 20px 10px repeat-x;
+    background: radial-gradient(circle, var(--lampada) 0 3px, var(--ouro) 4px, transparent 5px) 0 50% / 20px 10px repeat-x;
     animation: piscar 0.8s steps(2) infinite;
   }
   .letreiro::before { top: 7px; }
@@ -70,7 +110,7 @@
     font-weight: 400;
     font-size: clamp(1.5rem, 5vw, 3rem);
     color: var(--ouro);
-    text-shadow: 0 3px 0 #a0331f, 0 0 18px rgba(255, 201, 60, 0.6);
+    text-shadow: 0 3px 0 var(--sombra-titulo), 0 0 18px rgba(var(--ouro-rgb), 0.6);
   }
   .letreiro p { margin: 6px 0 0; color: var(--texto-suave); font-weight: 700; }
 
@@ -143,7 +183,7 @@
     margin-top: 10px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(255, 201, 60, 0.12);
+    background: rgba(var(--ouro-rgb), 0.12);
     border: 1px solid var(--borda);
     font-size: 0.88rem;
   }
@@ -177,16 +217,16 @@
     font-weight: 400;
     font-size: clamp(1.2rem, 3vw, 1.8rem);
     padding: 14px 36px;
-    border: 3px solid #fff3b0;
+    border: 3px solid var(--botao-borda);
     border-radius: 999px;
-    background: linear-gradient(#ff5a5f, #c1121f);
-    color: #fff;
+    background: linear-gradient(var(--botao-topo), var(--botao-base));
+    color: var(--botao-texto);
     text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
-    box-shadow: 0 6px 0 #7a0a12, 0 0 24px rgba(230, 57, 70, 0.6);
+    box-shadow: 0 6px 0 var(--botao-degrau), 0 0 24px rgba(var(--vermelho-rgb), 0.6);
     transition: transform 0.08s;
   }
-  .btn-grande:hover:not(:disabled) { background: linear-gradient(#ff6b70, #d0142a); }
-  .btn-grande:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #7a0a12; }
+  .btn-grande:hover:not(:disabled) { background: linear-gradient(var(--botao-hover-topo), var(--botao-hover-base)); }
+  .btn-grande:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--botao-degrau); }
   #status { margin: 0; color: var(--texto-suave); font-weight: 700; text-align: center; }
 
   /* ---------- Resultados ---------- */
@@ -244,7 +284,7 @@
     display: grid;
     place-items: center;
     padding: 16px;
-    background: radial-gradient(circle, rgba(46, 15, 102, 0.85), rgba(10, 3, 26, 0.95));
+    background: var(--overlay-fundo);
     text-align: center;
   }
   .overlay[hidden] { display: none; }
@@ -252,7 +292,7 @@
     font-family: var(--titulo);
     font-size: clamp(8rem, 30vw, 18rem);
     color: var(--ouro);
-    text-shadow: 0 8px 0 #a0331f, 0 0 60px rgba(255, 201, 60, 0.7);
+    text-shadow: 0 8px 0 var(--sombra-titulo), 0 0 60px rgba(var(--ouro-rgb), 0.7);
   }
   .pop { animation: pop 0.7s ease-out; }
   @keyframes pop {
@@ -267,7 +307,7 @@
     font-size: clamp(2.4rem, 9vw, 7rem);
     line-height: 1.1;
     color: var(--ouro);
-    text-shadow: 0 6px 0 #a0331f, 0 0 50px rgba(255, 201, 60, 0.7);
+    text-shadow: 0 6px 0 var(--sombra-titulo), 0 0 50px rgba(var(--ouro-rgb), 0.7);
     overflow-wrap: anywhere;
   }
   .posicao { margin: 0 0 24px; font-weight: 700; color: var(--texto-suave); }
@@ -474,13 +514,16 @@ function sorteioConcluido() {
    3. DESENHO DA RODA (canvas)
    ===================================================================== */
 
-const CORES = ['#e63946', '#ffb703', '#1d70e0', '#2a9d8f', '#8e44ad', '#f77f00'];
+// Lê uma variável do CSS (ex.: css('--pino') → '#ffffff'). É assim que o tema,
+// escrito no CSS, chega ao desenho da roda e ao confete.
+const css = (nome) => getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
+const listaCss = (nome) => css(nome).split(',').map((cor) => cor.trim());
 
-function corDaFatia(i, n) {
-  let cor = i % CORES.length;
+function corDaFatia(i, n, cores) {
+  let cor = i % cores.length;
   // evita que a última fatia tenha a mesma cor da primeira
   if (i === n - 1 && n > 1 && cor === 0) cor = 2;
-  return CORES[cor];
+  return cores[cor];
 }
 
 function encurtar(ctx, texto, larguraMax) {
@@ -495,13 +538,15 @@ function desenharRoda(lista = participantesNaRoda()) {
   const W = canvas.width;
   const c = W / 2;
   const R = c - 40;
+  const fatias = listaCss('--fatias');
+  const fonte = css('--fonte');
   ctx.clearRect(0, 0, W, W);
 
-  // Aro dourado
+  // Aro
   const aro = ctx.createRadialGradient(c, c, R, c, c, R + 34);
-  aro.addColorStop(0, '#fff3b0');
-  aro.addColorStop(0.5, '#ffc93c');
-  aro.addColorStop(1, '#a8650a');
+  aro.addColorStop(0, css('--aro-claro'));
+  aro.addColorStop(0.5, css('--aro-meio'));
+  aro.addColorStop(1, css('--aro-escuro'));
   ctx.beginPath();
   ctx.arc(c, c, R + 34, 0, TAU);
   ctx.fillStyle = aro;
@@ -511,10 +556,10 @@ function desenharRoda(lista = participantesNaRoda()) {
   if (n === 0) {
     ctx.beginPath();
     ctx.arc(c, c, R, 0, TAU);
-    ctx.fillStyle = '#2e0f66';
+    ctx.fillStyle = css('--roda-vazia');
     ctx.fill();
-    ctx.fillStyle = '#fff8e7';
-    ctx.font = '700 48px Nunito, sans-serif';
+    ctx.fillStyle = css('--texto');
+    ctx.font = `700 48px ${fonte}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('Adicione participantes', c, c);
@@ -530,7 +575,7 @@ function desenharRoda(lista = participantesNaRoda()) {
     ctx.moveTo(c, c);
     ctx.arc(c, c, R, inicio, inicio + fatia);
     ctx.closePath();
-    ctx.fillStyle = corDaFatia(i, n);
+    ctx.fillStyle = corDaFatia(i, n, fatias);
     ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.25)';
     ctx.lineWidth = 2;
@@ -544,15 +589,15 @@ function desenharRoda(lista = participantesNaRoda()) {
     ctx.textBaseline = 'middle';
     // Nome comprido: primeiro diminui a fonte (até 60%), só depois corta com "…"
     const larguraMax = R * 0.68;
-    ctx.font = `900 ${tamanhoFonte}px Nunito, sans-serif`;
+    ctx.font = `900 ${tamanhoFonte}px ${fonte}`;
     const largura = ctx.measureText(lista[i].nome).width;
-    const fonte = largura > larguraMax ? Math.max(tamanhoFonte * 0.6, tamanhoFonte * larguraMax / largura) : tamanhoFonte;
-    ctx.font = `900 ${fonte}px Nunito, sans-serif`;
+    const tamanho = largura > larguraMax ? Math.max(tamanhoFonte * 0.6, tamanhoFonte * larguraMax / largura) : tamanhoFonte;
+    ctx.font = `900 ${tamanho}px ${fonte}`;
     const texto = encurtar(ctx, lista[i].nome, larguraMax);
-    ctx.lineWidth = Math.max(3, fonte / 7);
+    ctx.lineWidth = Math.max(3, tamanho / 7);
     ctx.strokeStyle = 'rgba(0,0,0,0.55)';
     ctx.strokeText(texto, R - 28, 0);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = css('--nome-na-fatia');
     ctx.fillText(texto, R - 28, 0);
     ctx.restore();
   }
@@ -563,21 +608,21 @@ function desenharRoda(lista = participantesNaRoda()) {
       const a = estado.rotacao + i * fatia;
       ctx.beginPath();
       ctx.arc(c + (R + 17) * Math.cos(a), c + (R + 17) * Math.sin(a), 7, 0, TAU);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = css('--pino');
       ctx.fill();
     }
   }
 
   // Miolo central
   const miolo = ctx.createRadialGradient(c - 20, c - 20, 10, c, c, 90);
-  miolo.addColorStop(0, '#fff3b0');
-  miolo.addColorStop(1, '#c98a00');
+  miolo.addColorStop(0, css('--miolo-claro'));
+  miolo.addColorStop(1, css('--miolo-escuro'));
   ctx.beginPath();
   ctx.arc(c, c, 80, 0, TAU);
   ctx.fillStyle = miolo;
   ctx.fill();
-  ctx.fillStyle = '#a0331f';
-  ctx.font = '400 80px Bungee, sans-serif';
+  ctx.fillStyle = css('--miolo-simbolo');
+  ctx.font = `400 80px ${css('--titulo')}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('★', c, c + 4);
@@ -720,7 +765,7 @@ function confete() {
   canvas.width = innerWidth * dpr;
   canvas.height = innerHeight * dpr;
   ctx.scale(dpr, dpr);
-  const cores = ['#ffc93c', '#e63946', '#1d70e0', '#2a9d8f', '#ffffff', '#8e44ad'];
+  const cores = listaCss('--confete');
   const pedacos = [];
   for (let i = 0; i < 260; i++) {
     const daEsquerda = i % 2 === 0;
