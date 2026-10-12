@@ -6,7 +6,7 @@
 <title>Sorteador do Auditório</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Titan+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Titan+One&family=Luckiest+Guy&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   /* ---------- Tema: todas as cores e fontes moram aqui ----------
      Um tema novo é só outro bloco com estas mesmas variáveis. A roda e o
@@ -26,6 +26,7 @@
     --painel: rgba(255, 255, 255, 0.06);
     --borda: rgba(var(--ouro-rgb), 0.35);
     --titulo: 'Bungee', 'Arial Black', system-ui, sans-serif;
+    --titulo-maiusculas: none;  /* 'uppercase' para fontes cujas minúsculas destoam */
     --fonte: 'Nunito', system-ui, sans-serif;
     --sombra-titulo: #a0331f;
 
@@ -103,6 +104,49 @@
     --confete: #ffd100, #e4002b, #0072ce, #00a651, #ffffff, #ec008c;
   }
 
+  /* ---------- Tema "Manhã", inspirado no Bom Dia & Cia ----------
+     Manhã de TV aberta dos anos 90: céu azul com sol, título de desenho
+     animado, cores primárias, aro vermelho de circo e botão verde. */
+  :root[data-tema="manha"] {
+    --palco: #0288d1;
+    --palco-2: #4fc3f7;
+    --ouro: #ffe000;
+    --ouro-rgb: 255, 224, 0;
+    --vermelho: #ff1744;
+    --vermelho-rgb: 255, 23, 68;
+    --texto: #ffffff;
+    --texto-suave: #e1f5fe;
+    --painel: rgba(1, 87, 155, 0.55);
+    --borda: rgba(255, 255, 255, 0.45);
+    --titulo: 'Luckiest Guy', 'Arial Black', system-ui, sans-serif;
+    --titulo-maiusculas: uppercase;
+    --sombra-titulo: #c62828;
+
+    --letreiro-fundo: linear-gradient(#1e88e5, #0d47a1);
+    --lampada: #ffffff;
+
+    --botao-topo: #2ecc40;
+    --botao-base: #1b8a2a;
+    --botao-hover-topo: #3fdc51;
+    --botao-hover-base: #1f9a30;
+    --botao-degrau: #0f5418;
+    --botao-borda: #ffffff;
+
+    --overlay-fundo: radial-gradient(circle, rgba(2, 136, 209, 0.9), rgba(1, 58, 110, 0.96));
+
+    --fatias: #ff1744, #ffd600, #2979ff, #00c853, #ff9100, #d500f9;
+    --aro-claro: #ff8a80;
+    --aro-meio: #ff1744;
+    --aro-escuro: #b71c1c;
+    --pino: #ffffff;
+    --miolo-claro: #fff59d;
+    --miolo-escuro: #ffb300;
+    --miolo-simbolo: #ff1744;
+    --roda-vazia: #0277bd;
+
+    --confete: #ffe000, #ff1744, #2979ff, #00c853, #ffffff, #d500f9;
+  }
+
   * { box-sizing: border-box; }
 
   body {
@@ -149,6 +193,7 @@
   h1 {
     margin: 0;
     font-family: var(--titulo);
+    text-transform: var(--titulo-maiusculas);
     font-weight: 400;
     font-size: clamp(1.5rem, 5vw, 3rem);
     color: var(--ouro);
@@ -180,6 +225,7 @@
   .painel h2 {
     margin: 0 0 12px;
     font-family: var(--titulo);
+    text-transform: var(--titulo-maiusculas);
     font-weight: 400;
     font-size: 1.05rem;
     color: var(--ouro);
@@ -257,6 +303,7 @@
   .acoes { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   .btn-grande {
     font-family: var(--titulo);
+    text-transform: var(--titulo-maiusculas);
     font-weight: 400;
     font-size: clamp(1.2rem, 3vw, 1.8rem);
     padding: 14px 36px;
@@ -333,6 +380,7 @@
   .overlay[hidden] { display: none; }
   .numero {
     font-family: var(--titulo);
+    text-transform: var(--titulo-maiusculas);
     font-size: clamp(8rem, 30vw, 18rem);
     color: var(--ouro);
     text-shadow: 0 8px 0 var(--sombra-titulo), 0 0 60px rgba(var(--ouro-rgb), 0.7);
@@ -347,6 +395,7 @@
   .nome-vencedor {
     margin: 12px 0;
     font-family: var(--titulo);
+    text-transform: var(--titulo-maiusculas);
     font-size: clamp(2.4rem, 9vw, 7rem);
     line-height: 1.1;
     color: var(--ouro);
@@ -399,6 +448,7 @@
       <select id="tema">
         <option value="classico">Clássico</option>
         <option value="estudio">Estúdio (Roda a Roda)</option>
+        <option value="manha">Manhã (Bom Dia &amp; Cia)</option>
       </select>
     </label>
   </aside>
