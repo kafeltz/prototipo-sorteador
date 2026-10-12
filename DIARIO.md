@@ -414,3 +414,65 @@ na hora de ter um servidor (um "backend") para guardar os dados do projeto?
 
 > Nem toda ideia boa precisa ser feita agora, nem por você. Escrever a pergunta
 > certa numa issue pública transforma uma pendência num convite.
+
+---
+
+## Ato 9: Três temas, e o passo que não muda nada
+
+**Data:** 12/10/2026
+
+### O que eu pedi
+
+A organizadora do desafio sugeriu roletas inspiradas na **Roda a Roda** e no
+**Bom Dia & Companhia**. Quis as duas, como opção num seletor, sem perder o
+visual que já existia.
+
+### O passo que não muda nada
+
+As cores estavam espalhadas pelo código: parte no CSS, parte escrita direto no
+JavaScript que desenha a roda e o confete. Antes de qualquer tema, a IA fez um
+commit só para **juntar todas as cores num único bloco de variáveis CSS**, que
+o JavaScript passou a ler.
+
+A regra desse commit era não mudar nada na tela, e isso foi **provado**:
+capturas antes e depois em cinco situações (computador, celular, modo
+apresentação, roda vazia e tela do vencedor), comparadas pixel a pixel.
+Idênticas.
+
+Dois cuidados que fizeram a prova valer:
+
+- **Rodar o "antes" duas vezes.** A primeira referência variava sozinha,
+  porque o histórico mostra a hora do sorteio. Se o teste não repete o próprio
+  resultado, não serve para comparar nada. A hora passou a ser travada no
+  teste, assim como o sorteio.
+- **"Diferente" nem sempre é defeito.** O confete deu diferente. Investigando,
+  a diferença eram as lâmpadas do letreiro, que piscam e foram fotografadas em
+  outro momento. Fora delas, idêntico.
+
+### Os temas
+
+Com as cores num lugar só, cada tema virou **um bloco de variáveis**:
+
+- **Estúdio**, inspirado na Roda a Roda: estúdio azul-escuro, roda de cores
+  fortes, aro prateado com lâmpadas amarelas e botão magenta.
+- **Manhã**, inspirado no Bom Dia & Cia: céu azul, título de desenho animado,
+  cores primárias, aro vermelho de circo e botão verde.
+
+O visual original virou o tema **Clássico**, e a cada passo foi conferido que
+ele continuava idêntico. A escolha fica guardada no navegador.
+
+As capturas pegaram dois defeitos que ninguém teria visto lendo o código: os
+pinos brancos sumiam no aro prateado, e a fonte do tema Manhã escrevia
+"SORTeADOR", porque o "e" minúsculo dela tem outro desenho.
+
+### Direitos autorais
+
+Os temas são inspirados em programas de TV reais. Podem sofrer problemas com
+direitos autorais, estamos cientes disso.
+
+### Lição
+
+> Antes de construir em cima, arrume o terreno, num commit separado que não
+> muda nada e que você consegue provar que não mudou. É o commit mais chato de
+> fazer e o mais fácil de revisar, e foi ele que fez cada tema novo caber num
+> bloco só.
