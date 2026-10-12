@@ -21,9 +21,13 @@ tem um tempo sugerido, os pontos que eu quero passar e o ato do
 
 Começar mostrando, não explicando. O gancho é ver funcionando.
 
-- Abrir o sorteador já no **modo apresentação**.
-- Um sorteio completo: contagem 3-2-1, roda girando, nome revelado, confete.
-- Trocar o tema: **Clássico → Estúdio (Roda a Roda) → Manhã (Bom Dia & Cia)**.
+- Abrir o sorteador na **página normal** e trocar o tema no seletor "Visual":
+  **Clássico → Estúdio (Roda a Roda) → Manhã (Bom Dia & Cia)**. Parar no
+  preferido. (O seletor fica escondido no modo apresentação, por isso a troca
+  vem antes.)
+- Clicar em **⛶ Modo apresentação** e fazer um sorteio completo: contagem 3-2-1,
+  roda girando, nome revelado, confete.
+- Sair do modo apresentação com **Esc**.
 - Frase de passagem: *"Isso tudo é um arquivo HTML. Agora quero mostrar como
   ele foi feito, que é o que importa neste desafio."*
 
@@ -175,5 +179,7 @@ estão esperando."*
 - [ ] Abrir o `index.html` no navegador do computador da apresentação
 - [ ] Limpar o histórico antes de começar
 - [ ] Testar o som na saída de áudio da chamada
-- [ ] Modo apresentação na resolução do compartilhamento de tela
+- [ ] Modo apresentação na resolução do compartilhamento de tela (ensaiado em
+      1280×720 e 1920×1080, nos três temas: tudo cabe na tela)
+- [ ] Escolher o tema **antes** de entrar no modo apresentação
 - [ ] Deixar o diário aberto numa aba, para mostrar um ato se perguntarem
