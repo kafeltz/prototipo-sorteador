@@ -21,6 +21,7 @@ navegador.
 - Contagem 3-2-1, roda girando com "tique", fanfarra e confete
 - Histórico com comprovante de cada sorteio, guardado no navegador (não some ao recarregar), com botões para copiar e limpar
 - Modo apresentação em tela cheia, para lives e encontros
+- Temas visuais: Clássico e Estúdio (inspirado na Roda a Roda); a escolha fica guardada no navegador
 
 ## Como garantimos que o sorteio é justo
 

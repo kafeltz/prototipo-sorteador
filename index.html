@@ -6,7 +6,7 @@
 <title>Sorteador do Auditório</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Titan+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   /* ---------- Tema: todas as cores e fontes moram aqui ----------
      Um tema novo é só outro bloco com estas mesmas variáveis. A roda e o
@@ -59,6 +59,48 @@
 
     /* Confete (lido pelo JavaScript) */
     --confete: #ffc93c, #e63946, #1d70e0, #2a9d8f, #ffffff, #8e44ad;
+  }
+
+  /* ---------- Tema "Estúdio", inspirado na Roda a Roda ----------
+     Estúdio azul-escuro, roda com as cores fortes de programa de TV, aro
+     prateado com lâmpadas brancas e botão magenta. Só as variáveis mudam. */
+  :root[data-tema="estudio"] {
+    --palco: #020b24;
+    --palco-2: #0b3a8c;
+    --ouro: #ffd100;
+    --ouro-rgb: 255, 209, 0;
+    --vermelho: #ec008c;
+    --vermelho-rgb: 236, 0, 140;
+    --texto: #ffffff;
+    --texto-suave: #a9c4f5;
+    --painel: rgba(120, 170, 255, 0.07);
+    --borda: rgba(169, 196, 245, 0.35);
+    --titulo: 'Titan One', 'Arial Black', system-ui, sans-serif;
+    --sombra-titulo: #00205b;
+
+    --letreiro-fundo: linear-gradient(#0d4fb8, #062a6e);
+    --lampada: #ffffff;
+
+    --botao-topo: #ff3fa4;
+    --botao-base: #c4006e;
+    --botao-hover-topo: #ff5cb2;
+    --botao-hover-base: #d6007a;
+    --botao-degrau: #6b003c;
+    --botao-borda: #ffffff;
+
+    --overlay-fundo: radial-gradient(circle, rgba(11, 58, 140, 0.88), rgba(2, 8, 24, 0.96));
+
+    --fatias: #e4002b, #ffd100, #0072ce, #00a651, #ec008c, #ff7f00;
+    --aro-claro: #ffffff;
+    --aro-meio: #c9d3de;
+    --aro-escuro: #5b6670;
+    --pino: #ffd100;            /* lâmpadas amarelas no aro prateado */
+    --miolo-claro: #ffffff;
+    --miolo-escuro: #8a96a3;
+    --miolo-simbolo: #0b3a8c;
+    --roda-vazia: #0b3a8c;
+
+    --confete: #ffd100, #e4002b, #0072ce, #00a651, #ffffff, #ec008c;
   }
 
   * { box-sizing: border-box; }
@@ -148,7 +190,7 @@
   label.check { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   .dica { font-size: 0.85rem; color: var(--texto-suave); }
 
-  textarea, input[type=number] {
+  textarea, input[type=number], select {
     width: 100%;
     margin-top: 6px;
     padding: 10px;
@@ -160,6 +202,7 @@
   }
   textarea { resize: vertical; min-height: 200px; }
   input[type=number] { width: 90px; }
+  select option { background: var(--palco); }
   input[type=range] { width: 100%; accent-color: var(--ouro); }
   input[type=checkbox] { accent-color: var(--ouro); width: 18px; height: 18px; }
 
@@ -318,6 +361,10 @@
     .letreiro::before, .letreiro::after, .pop { animation: none; }
   }
 </style>
+<script>
+  // Aplica o tema salvo antes de a página aparecer, para não piscar o tema errado
+  try { document.documentElement.dataset.tema = localStorage.getItem('sorteador:tema') || 'classico'; } catch {}
+</script>
 </head>
 <body>
 
@@ -346,6 +393,14 @@
     <label for="duracao">Duração do giro: <strong id="duracao-valor">6 s</strong></label>
     <input type="range" id="duracao" min="3" max="15" value="6">
     <label class="check"><input type="checkbox" id="som" checked> Som ligado</label>
+
+    <h2>Visual</h2>
+    <label>Tema
+      <select id="tema">
+        <option value="classico">Clássico</option>
+        <option value="estudio">Estúdio (Roda a Roda)</option>
+      </select>
+    </label>
   </aside>
 
   <!-- Coluna 2: a roda -->
@@ -970,6 +1025,16 @@ $('btn-copiar').addEventListener('click', async () => {
   await navigator.clipboard.writeText(texto);
   $('btn-copiar').textContent = 'Copiado!';
   setTimeout(() => ($('btn-copiar').textContent = 'Copiar'), 1500);
+});
+
+// Troca de tema: o CSS muda sozinho; a roda, desenhada em JavaScript, é redesenhada
+$('tema').value = document.documentElement.dataset.tema;
+$('tema').addEventListener('change', async () => {
+  const tema = $('tema').value;
+  document.documentElement.dataset.tema = tema;
+  try { localStorage.setItem('sorteador:tema', tema); } catch {}
+  await document.fonts.load(`400 80px ${css('--titulo')}`); // a fonte do miolo da roda
+  desenharRoda();
 });
 
 $('btn-limpar').addEventListener('click', () => {
