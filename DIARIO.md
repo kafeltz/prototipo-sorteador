@@ -893,3 +893,53 @@ o que se ganha, o que se perde e o que ficou de fora:
 > vai lembrar por que não foi uma máquina virtual, mas o arquivo vai estar lá.
 > E escrever antes do código às vezes revela que metade do código não precisa
 > existir.
+
+---
+
+## Ato 18: O servidor mínimo
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Um servidor pequeno de propósito: **um arquivo de código, uma tabela, uma
+configuração**. Ele faz três coisas: recebe um lacre do organizador, devolve
+esse lacre a quem pedir e, depois do horário, calcula o resultado com a mesma
+regra e o mesmo farol do navegador, importados, e não copiados.
+
+O banco é o D1, que por baixo é SQLite. No desenvolvimento, ele é um arquivo
+na pasta `.wrangler/`, que dá para abrir com qualquer programa de SQLite.
+
+### As portas fechadas
+
+- **Só eu gravo**, com uma senha guardada como segredo do servidor, nunca no
+  código. Quem tenta adivinhar tem 10 chances por minuto. E a comparação da
+  senha leva sempre o mesmo tempo, acertando ou errando: senão o tempo da
+  resposta poderia revelar quantas letras estavam certas.
+- **Lacre de rodada que já saiu é recusado**, a mesma regra do sorteador, agora
+  também no servidor. Regra de segurança que só existe na tela é sugestão.
+- **Lista de permitidos para o que é publicado.** O servidor publica os
+  arquivos da raiz do repositório, onde também moram o `package.json`, o código
+  do servidor e os segredos de desenvolvimento. Em vez de listar o que
+  esconder (e um dia esquecer um arquivo novo), a lista diz o que **mostrar**:
+  todo o resto nasce escondido.
+
+### Como conferi
+
+Testes que sobem o servidor de verdade, com um banco SQLite descartável, e
+conversam com ele por HTTP: arquivos que não podem vazar, senha errada, lacre
+quebrado, lacre do passado, o resultado calculado com uma rodada real, a
+limpeza dos 90 dias e uma força bruta na senha.
+
+Os testes passaram, mas **não terminavam**. Matar o processo do servidor no
+fim não matava os processos que ele abre por baixo, e o executor dos testes
+ficava esperando por eles para sempre. A correção foi encerrar o grupo
+inteiro de processos. Um teste que passa mas não termina também é um teste
+quebrado: no GitHub, ele travaria a fila.
+
+### Lição
+
+> Pequeno não é o mesmo que descuidado. O servidor cabe numa tela, mas cada
+> porta dele (quem grava, o que é publicado, quanto tempo fica) foi decidida e
+> testada. E quando o servidor importa a regra em vez de copiá-la, ele não tem
+> como discordar do navegador.
