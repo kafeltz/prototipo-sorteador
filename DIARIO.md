@@ -856,3 +856,90 @@ As capturas pegaram mais um defeito de layout: com dois botões no histórico
 > confiável são as portas fechadas: horário no passado, farol fora do ar,
 > página recarregada, roda e regra discordando. Cada uma é uma linha de código
 > e uma trapaça a menos.
+
+---
+
+## Ato 17: Decisões escritas antes do servidor
+
+**Data:** 19/10/2026
+
+### O que eu pedi
+
+Um servidor (um "backend") e um banco de dados. Pensei em SQLite, para ser
+ultra pequeno.
+
+### O que foi feito
+
+Antes de qualquer código, três **registros de decisão** na pasta
+[`docs/decisoes/`](docs/decisoes/). Cada um diz o contexto, o que foi decidido,
+o que se ganha, o que se perde e o que ficou de fora:
+
+1. **Para que um servidor.** A surpresa: o sorteio verificável, que parecia
+   precisar de servidor, já funcionava sem ele. Sobrou um uso só: dar a cada
+   sorteio um **endereço público**, para quem assiste abrir pelo celular. E o
+   servidor **não precisa ser confiável**: a página refaz a conta no navegador
+   de quem olha.
+2. **Com quê.** Cloudflare Workers com **D1, que é o próprio SQLite**,
+   gerenciado. Ultra pequeno, como eu queria, e sem máquina para manter.
+   Descartados: uma máquina virtual (alguém tem que cuidar dela) e os Durable
+   Objects (o servidor nem precisa estar acordado na hora do sorteio).
+3. **Que dados.** As respostas que a issue #3 cobrava: o que fica guardado
+   (só o lacre, sem e-mail, IP ou cookie), quem grava (só eu, com senha), quem
+   lê (todo mundo: sem a lista, ninguém confere) e por quanto tempo (90 dias).
+
+### Lição
+
+> Decisão escrita é decisão que dá para revisar. Daqui a seis meses, ninguém
+> vai lembrar por que não foi uma máquina virtual, mas o arquivo vai estar lá.
+> E escrever antes do código às vezes revela que metade do código não precisa
+> existir.
+
+---
+
+## Ato 18: O servidor mínimo
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Um servidor pequeno de propósito: **um arquivo de código, uma tabela, uma
+configuração**. Ele faz três coisas: recebe um lacre do organizador, devolve
+esse lacre a quem pedir e, depois do horário, calcula o resultado com a mesma
+regra e o mesmo farol do navegador, importados, e não copiados.
+
+O banco é o D1, que por baixo é SQLite. No desenvolvimento, ele é um arquivo
+na pasta `.wrangler/`, que dá para abrir com qualquer programa de SQLite.
+
+### As portas fechadas
+
+- **Só eu gravo**, com uma senha guardada como segredo do servidor, nunca no
+  código. Quem tenta adivinhar tem 10 chances por minuto. E a comparação da
+  senha leva sempre o mesmo tempo, acertando ou errando: senão o tempo da
+  resposta poderia revelar quantas letras estavam certas.
+- **Lacre de rodada que já saiu é recusado**, a mesma regra do sorteador, agora
+  também no servidor. Regra de segurança que só existe na tela é sugestão.
+- **Lista de permitidos para o que é publicado.** O servidor publica os
+  arquivos da raiz do repositório, onde também moram o `package.json`, o código
+  do servidor e os segredos de desenvolvimento. Em vez de listar o que
+  esconder (e um dia esquecer um arquivo novo), a lista diz o que **mostrar**:
+  todo o resto nasce escondido.
+
+### Como conferi
+
+Testes que sobem o servidor de verdade, com um banco SQLite descartável, e
+conversam com ele por HTTP: arquivos que não podem vazar, senha errada, lacre
+quebrado, lacre do passado, o resultado calculado com uma rodada real, a
+limpeza dos 90 dias e uma força bruta na senha.
+
+Os testes passaram, mas **não terminavam**. Matar o processo do servidor no
+fim não matava os processos que ele abre por baixo, e o executor dos testes
+ficava esperando por eles para sempre. A correção foi encerrar o grupo
+inteiro de processos. Um teste que passa mas não termina também é um teste
+quebrado: no GitHub, ele travaria a fila.
+
+### Lição
+
+> Pequeno não é o mesmo que descuidado. O servidor cabe numa tela, mas cada
+> porta dele (quem grava, o que é publicado, quanto tempo fica) foi decidida e
+> testada. E quando o servidor importa a regra em vez de copiá-la, ele não tem
+> como discordar do navegador.

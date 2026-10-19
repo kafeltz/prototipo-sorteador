@@ -1,0 +1,6 @@
+# Dependências (npm install recria)
+node_modules/
+# Banco SQLite e estado local do wrangler dev
+.wrangler/
+# Segredos de desenvolvimento: nunca vão para o repositório
+.dev.vars

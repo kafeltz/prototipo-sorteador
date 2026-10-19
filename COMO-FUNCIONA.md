@@ -294,6 +294,48 @@ casos de teste estão em `testes/vetores.json`, com rodadas reais do drand.
 
 ---
 
+## 6. O servidor: um endereço para cada sorteio
+
+O sorteio verificável funciona sem servidor. O servidor existe só para dar a
+cada sorteio um **endereço público** (`/s/<código>`), que quem assiste abre
+pelo celular. As decisões estão em [`docs/decisoes/`](docs/decisoes/).
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    state "Com resultado" as ComResultado
+    [*] --> Publicado: organizador manda o lacre<br>(com a senha)
+    Publicado --> Publicado: consultas antes do horário<br>devolvem só o lacre
+    Publicado --> ComResultado: primeira consulta depois da rodada<br>(o servidor busca o farol e guarda)
+    Publicado --> [*]: organizador apaga
+    ComResultado --> [*]: 90 dias depois do horário<br>(limpeza diária) ou organizador apaga
+```
+
+**As regras:**
+
+- **O servidor não precisa ser confiável.** Ele guarda e devolve o lacre, e
+  calcula o resultado por conveniência. Quem confere de verdade é o
+  navegador de quem olha, com o farol e a regra.
+- **Lacre de rodada que já saiu é recusado**, como no sorteador: quem
+  publicasse poderia conhecer o resultado antes.
+- **O mesmo lacre publicado duas vezes é o mesmo sorteio** (a impressão
+  digital é única no banco).
+- **O servidor publica por lista de permitidos.** Os arquivos estáticos saem
+  da raiz do repositório, mas só os listados no `.assetsignore`. Um arquivo
+  novo na raiz nasce escondido, e não público.
+- **Só o organizador grava ou apaga**, com uma senha guardada como segredo do
+  servidor. São 10 tentativas por minuto por endereço de internet; a
+  comparação da senha leva sempre o mesmo tempo, acertando ou errando.
+- **Nada além do lacre é guardado:** nenhum e-mail, IP ou cookie. E tudo some
+  90 dias depois do horário do sorteio.
+
+**Onde está:** `servidor/index.js` (as rotas, `publicar()`, `consultar()`,
+`exigirOrganizador()` e a limpeza em `scheduled()`), a tabela em
+`servidor/migracoes/0001_sorteios.sql`, a configuração em `wrangler.jsonc` e
+os testes em `testes/servidor.test.mjs`.
+
+---
+
 ## Quando o código mudar
 
 Estes diagramas descrevem o código de 19/10/2026. Se uma dessas regras mudar,

@@ -1,0 +1,12 @@
+# Arquivos que o servidor publica. É uma lista de PERMITIDOS: tudo começa
+# escondido (/*) e cada "!" libera um arquivo. Assim, nada que for criado na
+# raiz do repositório vira público por engano (.dev.vars, package.json,
+# o código do servidor…).
+/*
+!/index.html
+!/conferir.html
+!/regra-do-sorteio.js
+!/farol.js
+!/vendor/
+/vendor/*
+!/vendor/noble-bls.js
