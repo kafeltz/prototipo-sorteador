@@ -5,5 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test": "node --test \"testes/*.test.mjs\""
+  },
+  "devDependencies": {
+    "wrangler": "^4.145.0"
   }
 }
