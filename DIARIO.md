@@ -731,3 +731,66 @@ continua valendo.
 > Código que vai ser auditado tem que dar sempre o mesmo resultado, e precisa
 > ser simples o bastante para outra pessoa reescrever do zero. A prova de que
 > uma regra é pública é alguém chegar à mesma resposta sem copiar o seu código.
+
+---
+
+## Ato 15: O conferidor antes da funcionalidade
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Antes de colocar o sorteio verificável no sorteador, veio **o lado de quem
+confere**. Se ninguém consegue conferir, "verificável" é só propaganda.
+
+- **`conferir.html`:** a testemunha cola o lacre que recebeu (pode ser com o
+  texto do convite em volta) e a página mostra, passo a passo, o que foi
+  conferido: o lacre, a rodada do farol com a assinatura, a semente e os
+  vencedores. Se a rodada ainda não saiu, mostra quanto falta e confere
+  sozinha na hora.
+- **`conferir.mjs`:** a mesma coisa pelo terminal, para quem não quer confiar
+  nem na página.
+- **`farol.js`:** busca a rodada em quatro endereços do drand. Um fora do ar,
+  tenta o próximo. Mas um entregando número com assinatura falsa **para tudo**:
+  isso não é "instabilidade", é ataque.
+
+### A assinatura é conferida em quem olha
+
+O farol assina cada rodada com uma chave que só a League of Entropy tem. Quem
+confere usa a chave pública, gravada no código, e a conta acontece **no
+aparelho da testemunha**. Não importa quem entregou o número, nem se foi o
+nosso servidor: número com assinatura errada é recusado.
+
+### A primeira dependência
+
+Conferir assinaturas desse tipo exige matemática de curvas elípticas, e
+escrever isso à mão é pedir para errar. Entrou a primeira biblioteca de
+terceiros do projeto, a `@noble/curves`, que é auditada e não tem
+dependências. Duas decisões:
+
+- **Um arquivo copiado para dentro do repositório**, e não um link para um
+  CDN. O sorteador continua abrindo com dois cliques, e o que foi revisado é o
+  que roda: um arquivo no repositório não muda de um dia para o outro.
+- **Com receita e conferência.** O `vendor/README.md` diz exatamente como gerar
+  o arquivo de novo e qual tem que ser o hash dele.
+
+E a receita foi testada de verdade. Na primeira tentativa, o hash deu
+diferente. O motivo: eu tinha pegado um atalho (reaproveitar uma pasta de
+dependências por um link), e o empacotador escreve o caminho dos arquivos
+dentro do resultado. Seguindo a receita à risca, numa pasta limpa, o hash
+bateu.
+
+### Como conferi
+
+Testes sem internet, com rodadas reais gravadas e um farol "de mentira" que
+cai, demora, responde a rodada errada ou entrega um número forjado. No
+navegador: um lacre real colado sujo, um lacre de 20 segundos no futuro (a
+página esperou e conferiu sozinha), um lacre quebrado e um participante
+chamado `<b>Duda</b>`, que tem que aparecer como texto, e não virar negrito.
+As capturas pegaram um defeito de layout na lista de vencedores do celular.
+
+### Lição
+
+> Faça primeiro a ferramenta de quem desconfia. E quando a receita diz "numa
+> pasta limpa", é numa pasta limpa: o atalho que parece igual é justamente o
+> que a conferência existe para pegar.
