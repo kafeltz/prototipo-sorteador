@@ -1148,3 +1148,60 @@ tem uma linha em comum com o JavaScript, também.
 > Ensaio geral é no lugar de verdade, com a senha de verdade, do jeito que vai
 > ser usado. E "pronto" tem que ter sido definido antes: a frase da issue #4
 > foi escrita uma semana atrás, e foi ela que disse quando parar.
+
+---
+
+## Ato 23: Agora eu sou o aluno
+
+**Data:** 19/10/2026
+
+### O que eu pedi
+
+Com tudo pronto, troquei de lugar: virei aluno. Pedi um passo a passo para
+aprender a usar o sorteador, que servisse também para apresentar.
+
+### Como foi
+
+A IA montou um roteiro de oito passos, um de cada vez, como no Ato 7: ela
+explica, eu faço e conto o que vi. O guia escrito ficou para o fim, para
+registrar o uso de verdade, e não o imaginado.
+
+E o uso de verdade surpreendeu:
+
+- **Lacrar não é publicar.** Fiz um sorteio verificável inteiro, conferi, deu
+  certo, e a IA não achou o sorteio no servidor. Os dois estavam certos: eu
+  tinha lacrado, mas não publicado, e o link do conferidor leva o lacre dentro
+  do próprio endereço, numa parte que nunca vai para o servidor. Foi a melhor
+  demonstração de que o servidor é opcional, e também de que a interface não
+  deixava essa diferença clara. Virou a primeira seção do guia.
+- **Folga curta demais.** No segundo teste, publiquei 2 minutos antes do
+  sorteio. Funcionou, mas o convite da agenda por pouco não chegaria a tempo,
+  e sem o convite antes não existe prova. Decidi não mudar o sorteador por
+  enquanto; o guia avisa.
+
+### O endereço de verdade
+
+Achei feio o endereço provisório e decidi apresentar a versão nova. O
+sorteador passou para **sorteador.kafeltz.com.br**, um dia antes da
+apresentação, com o caminho de volta preparado: a troca levou uns 45 segundos
+fora do ar, e voltar atrás leva 2 minutos.
+
+A mudança achou um defeito escondido. Com o domínio configurado, o servidor
+de desenvolvimento passava a se apresentar com o nome de produção, e um QR code
+gerado num teste local apontaria para o site no ar. Agora quem monta o endereço
+é a página, que sabe onde está aberta. O teste de ponta a ponta ainda pegou um
+segundo defeito, criado pela própria correção, antes de ir para o ar.
+
+### O que ficou
+
+- O guia [`COMO-USAR.md`](COMO-USAR.md), do sorteio rápido ao verificável, com
+  a visão do organizador, da testemunha e de quem confere depois.
+- Uma limpeza: os sorteios de teste saíram do servidor, para a apresentação
+  começar do zero.
+
+### Lição
+
+> Quem fez não consegue usar como iniciante. Trocar de lugar, de professor para
+> aluno, achou em meia hora o que nenhum teste automático acharia: a diferença
+> entre lacrar e publicar, que era óbvia para quem escreveu o código, não era
+> para quem usava.

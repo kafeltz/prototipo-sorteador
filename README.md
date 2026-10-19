@@ -13,8 +13,9 @@ que não tem viés, como os temas funcionam) estão em diagramas no
 
 ## Como usar
 
-No ar em **https://sorteador.kafeltz.com.br**. Para conferir um sorteio:
-https://sorteador.kafeltz.com.br/conferir
+No ar em **https://sorteador.kafeltz.com.br**. O passo a passo, do sorteio
+rápido ao verificável com testemunhas, está no [COMO-USAR.md](COMO-USAR.md).
+Para conferir um sorteio: https://sorteador.kafeltz.com.br/conferir
 
 ## Como rodar no seu computador
 
