@@ -1,0 +1,40 @@
+// Configuração do servidor (Cloudflare Workers). O porquê de cada escolha
+// está em docs/decisoes/.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "sorteador",
+  "main": "servidor/index.js",
+  "compatibility_date": "2026-10-01",
+
+  // Endereço de prévia: sorteador.<conta>.workers.dev
+  "workers_dev": true,
+
+  // Os arquivos estáticos (index.html, conferir.html…) saem da raiz do
+  // repositório, mas só os da lista do .assetsignore. A API e as páginas
+  // de sorteio (/s/<código>) passam primeiro pelo código do servidor.
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/s/*"]
+  },
+
+  // O banco: D1 é SQLite gerenciado pela Cloudflare
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sorteador",
+      "database_id": "ca923e7c-b4ae-4104-be9c-fc56a61aa063",
+      "migrations_dir": "servidor/migracoes"
+    }
+  ],
+
+  // No máximo 10 tentativas por minuto com a senha do organizador, por IP
+  "ratelimits": [
+    { "name": "LIMITE_SENHA", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
+  ],
+
+  // Todo dia às 4h17 (UTC) apaga os sorteios que passaram de 90 dias
+  "triggers": { "crons": ["17 4 * * *"] },
+
+  "observability": { "enabled": true }
+}

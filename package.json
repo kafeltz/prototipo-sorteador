@@ -4,9 +4,10 @@
   "description": "Sorteador web com clima de programa de auditório, justo e verificável",
   "license": "MIT",
   "scripts": {
-    "test": "node --test \"testes/*.test.mjs\""
+    "test": "node --test \"testes/*.test.mjs\"",
+    "dev": "wrangler d1 migrations apply DB --local && wrangler dev"
   },
   "devDependencies": {
-    "wrangler": "^4.145.0"
+    "wrangler": "4.145.0"
   }
 }
