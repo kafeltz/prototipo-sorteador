@@ -93,6 +93,14 @@ test('lacres adulterados ou incompletos são recusados, com explicação', () =>
     'mais vencedores que nomes': LACRE.replace('Vencedores: 3', 'Vencedores: 18'),
     'vencedores zero': LACRE.replace('Vencedores: 3', 'Vencedores: 0'),
     'sim/não inválido': LACRE.replace('sai da roda: sim', 'sai da roda: talvez'),
+    // Achados da revisão de segurança (Ato 20)
+    'nome repetido igualzinho': LACRE.replace('2. Bruno Lima', '2. Ana Souza'),
+    'nome repetido com outra grafia': LACRE.replace('2. Bruno Lima', '2. ána  SOUZA'),
+    'participante a mais depois da lista': `${LACRE}\n18. Amigo do Organizador`,
+    'dois lacres no mesmo texto': `${LACRE}\n\n${LACRE}`,
+    'vencedores sem teto (pode repetir)': LACRE.replace('Vencedores: 3', 'Vencedores: 9007199254740991').replace('sai da roda: sim', 'sai da roda: não'),
+    'total de participantes gigante': LACRE.replace('Participantes (17):', 'Participantes (99999999999):'),
+    'data impossível': LACRE.replace(/Horário: \d{4}-\d{2}-\d{2}/, 'Horário: 2030-02-30'),
   };
   for (const [caso, texto] of Object.entries(casos)) {
     assert.throws(() => R.lerLacre(texto), R.ErroNoLacre, caso);
@@ -108,4 +116,21 @@ test('escrever o lacre confere os dados', () => {
   assert.throws(() => R.escreverLacre({ ...base, vencedores: 1.5 }), R.ErroNoLacre);
   // título vazio vira "Sorteio"
   assert.match(R.escreverLacre({ ...base, titulo: '' }), /^Título: Sorteio$/m);
+});
+
+test('o lacre vai e volta de um link sem perder acento nem símbolo', () => {
+  for (const v of vetores) {
+    const codigo = R.lacreParaLink(v.lacre);
+    assert.match(codigo, /^[A-Za-z0-9_-]+$/); // nada que precise escapar num endereço
+    assert.equal(R.lacreDoLink(codigo), v.lacre);
+  }
+});
+
+test('texto livre depois do lacre continua permitido', () => {
+  assert.doesNotThrow(() => R.lerLacre(`${LACRE}\n\nPara conferir: https://exemplo/conferir.html\nAbraços!`));
+});
+
+test('a chave do nome junta grafias da mesma pessoa', () => {
+  assert.equal(R.chaveDoNome('Ana Souza'), R.chaveDoNome('  ána\u00a0 SOUZA '));
+  assert.notEqual(R.chaveDoNome('Ana Souza'), R.chaveDoNome('Ana Sousa'));
 });

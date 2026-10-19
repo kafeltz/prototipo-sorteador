@@ -33,6 +33,11 @@ def ler_lacre(texto):
         prefixo = f"{n}. "
         assert linhas[i + 6 + n].startswith(prefixo)
         participantes.append(linhas[i + 6 + n][len(prefixo):])
+    # Cada pessoa entra uma vez só: sem acento, sem maiúscula, mesmo nome
+    def chave(nome):
+        sem_acento = unicodedata.normalize("NFD", nome)
+        return "".join(c for c in sem_acento if not "\u0300" <= c <= "\u036f").lower()
+    assert len({chave(n) for n in participantes}) == len(participantes), "nome repetido"
     # O lacre no formato oficial são as linhas do cabeçalho até o último nome
     oficial = "\n".join(linhas[i : i + 7 + total])
     vencedores = int(linhas[i + 4].removeprefix("Vencedores: "))

@@ -943,3 +943,132 @@ quebrado: no GitHub, ele travaria a fila.
 > porta dele (quem grava, o que é publicado, quanto tempo fica) foi decidida e
 > testada. E quando o servidor importa a regra em vez de copiá-la, ele não tem
 > como discordar do navegador.
+
+---
+
+## Ato 19: O QR code e a página da testemunha
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+A ideia original das testemunhas com QR code (Ato 13) voltou, agora no lugar
+certo:
+
+- **No sorteador**, depois de lacrar, um botão **Publicar** (com a minha senha)
+  manda o lacre para o servidor e devolve um endereço `/s/<código>`. Aparece o
+  **QR code**, no diálogo e no painel de resultados, grande no modo
+  apresentação. O endereço entra sozinho no texto do convite da agenda.
+- **A página da testemunha**, aberta pelo celular: o lacre, a impressão
+  digital para comparar com o convite, uma contagem grande até o farol e, na
+  hora, o resultado **calculado no aparelho de quem abriu**.
+
+### O servidor mentiroso
+
+A página não acredita no servidor. Ela busca o número no farol, confere a
+assinatura e refaz a conta sozinha. O servidor também calcula o resultado, e
+a página compara os dois. Para testar, um teste fez o servidor "mentir" um
+vencedor ("Amigo do Organizador"). A página mostrou um aviso vermelho e os
+nomes certos, os da conta feita ali. Isso é o que a decisão 0001 queria dizer
+com "o servidor não precisa ser confiável".
+
+### Como conferi
+
+Um teste de ponta a ponta, com o servidor rodando no computador: senha
+errada, publicar, a página da testemunha no celular antes e depois do horário,
+três vencedores **iguais** na roda, na testemunha e na API. O QR code foi
+**lido de volta** das capturas por uma biblioteca de leitura de QR: um QR que
+parece certo, mas aponta para outro lugar, só seria descoberto na live. E o
+título do sorteio foi `Live de teste <script>alert(1)</script>`, que apareceu
+como texto em todas as telas.
+
+O teste quebrou três vezes, e só uma delas era defeito do código:
+
+- **Uma resposta lida pela metade.** O sorteador perguntava "o servidor está
+  aí?" e olhava só o status, sem ler a resposta. O navegador deixava o pedido
+  "pendurado", e a página nunca terminava de carregar. Defeito de verdade,
+  corrigido.
+- **A senha digitada em cima da errada.** O teste digitou a senha certa depois
+  de "errada", que continuava no campo. A culpa era do teste, mas virou uma
+  melhoria: depois de uma senha errada, o campo fica selecionado.
+- **Uma aba escondida não anima.** As abas das testemunhas abriram por cima da
+  do organizador, e o navegador pausa animações de aba escondida: a roda nunca
+  parava. Também era o teste.
+
+### Lição
+
+> Teste o que o usuário vai fazer de verdade: ler o QR com a câmera, abrir no
+> celular, desconfiar do servidor. E quando um teste falhar, pergunte primeiro
+> se a falha é do código ou do teste. Às vezes é do teste e, mesmo assim, ela
+> ensina alguma coisa sobre o código.
+
+---
+
+## Ato 20: Pensando como atacante
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Com tudo funcionando, pedi uma **revisão de segurança independente**: outra
+sessão de IA, que não tinha visto nada desta conversa, leu o código com uma
+missão só, a de achar furos com cenário concreto e arquivo e linha. Quem
+escreveu o código é a pior pessoa para revisá-lo: lê o que quis escrever, e
+não o que escreveu.
+
+### O que ela achou
+
+Dois achados sérios, que eu não tinha visto:
+
+- **A página da testemunha confiava no servidor justamente onde não podia.**
+  Ela mostrava a impressão digital que o servidor *dizia* ter. Um servidor
+  desonesto poderia trocar a lista e repetir a impressão do convite: a
+  testemunha compararia, veria tudo batendo e confiaria. Agora a impressão é
+  calculada no aparelho de quem abre. Testei os dois jeitos de mentir: o
+  servidor repetindo a impressão antiga (alerta vermelho) e o servidor
+  calculando uma impressão nova para a lista trocada (ela aparece na tela, e
+  não é a do convite).
+- **A tabela de trapaças prometia algo que o código não fazia.** Dizia que
+  nomes repetidos estavam cobertos, mas o lacre aceitava "Ana Souza" duas
+  vezes. Agora recusa, inclusive "ána souza".
+
+E alguns médios: uma linha "18. Fulano" depois da lista era ignorada em
+silêncio (quem lesse o convite acharia que Fulano concorre); o número de
+vencedores não tinha teto e podia travar o navegador; "30 de fevereiro"
+virava 2 de março; e o servidor fazia a conta pesada do farol dentro da
+consulta, podendo deixar a testemunha sem nem o lacre. Cada achado virou um
+commit com teste.
+
+### O que ela confirmou
+
+Também valeu saber o que estava certo: nenhum nome chega à página como
+HTML, todas as consultas ao banco usam parâmetros, a comparação da senha é
+em tempo constante e a lista de permitidos publica exatamente oito arquivos.
+
+### O ataque de verdade
+
+Alguns testes só valem na nuvem. Contra o servidor publicado, tentei
+adivinhar a senha: depois de umas 10 tentativas, ele responde "Tentativas
+demais". Tentei fingir ser outro computador a cada tentativa, forjando o
+cabeçalho de endereço: a própria Cloudflare recusa o pedido antes de ele
+chegar ao código.
+
+### Dois tropeços meus
+
+- **Uma correção que quebrou outra página.** Ao mostrar a lista de nomes no
+  conferidor, declarei uma variável com um nome que já existia, e a página
+  inteira parou. Nenhum teste percebeu, porque nenhum olhava o JavaScript
+  dentro do HTML. Agora tem um teste para isso, e ele foi conferido
+  reintroduzindo o erro de propósito.
+- **Uma mudança no banco que não foi aplicada.** O código novo foi para a
+  nuvem antes da coluna nova existir no banco, e o filtro que eu usava na
+  saída do comando escondeu o aviso. Conferindo a tabela, a coluna não estava
+  lá. Regra que fica: primeiro o banco, depois o código, e **conferir**, nunca
+  supor.
+
+### Lição
+
+> Peça a alguém que não escreveu o código para atacá-lo, e dê a essa pessoa
+> o seu modelo de ameaça: os furos mais perigosos estão onde a documentação
+> promete mais do que o código cumpre. E alguns ataques só se testam no
+> mundo real.

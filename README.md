@@ -17,7 +17,27 @@ Não precisa instalar nada. Baixe o repositório e abra o `index.html` no
 navegador. Para conferir um sorteio verificável, abra o `conferir.html` (ou,
 no terminal, `node conferir.mjs lacre.txt`).
 
-Para rodar os testes: `npm test` (Node 22 e Python 3, sem instalar nada).
+Para rodar os testes: `npm install` uma vez e depois `npm test` (Node 22 e
+Python 3).
+
+### O servidor (opcional)
+
+O servidor só dá a cada sorteio verificável um endereço público, com QR code,
+para quem assiste abrir no celular. Sortear e conferir funcionam sem ele. O
+porquê de cada escolha está em [`docs/decisoes/`](docs/decisoes/).
+
+Para rodar no seu computador:
+
+1. `npm install`
+2. Crie um arquivo `.dev.vars` (ele não vai para o repositório) com a senha do
+   organizador: `SENHA_ORGANIZADOR=...`. Para o computador local, qualquer
+   senha serve. **No servidor publicado, use uma senha longa e aleatória**
+   (por exemplo, a saída de `openssl rand -base64 24`), guardada com
+   `npx wrangler secret put SENHA_ORGANIZADOR`. O limite de tentativas ajuda,
+   mas quem tem muitos endereços de internet consegue contorná-lo; senha
+   aleatória, não.
+3. `npm run dev` e abra o endereço que aparecer (normalmente
+   `http://localhost:8787`). O banco é um arquivo SQLite dentro de `.wrangler/`.
 
 ## O que já funciona
 

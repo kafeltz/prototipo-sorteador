@@ -10,3 +10,6 @@
 !/vendor/
 /vendor/*
 !/vendor/noble-bls.js
+!/sorteio.html
+!/estilo-paginas.css
+!/vendor/qrcode.js

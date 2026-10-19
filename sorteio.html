@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+<title>Sorteio verificável · Sorteador do Auditório</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- Caminhos começando com "/": esta página é servida em /s/<código> -->
+<link rel="stylesheet" href="/estilo-paginas.css">
+</head>
+<body>
+<main>
+  <p class="suave" style="margin:0">Sorteio verificável</p>
+  <h1 id="titulo">Carregando…</h1>
+
+  <section id="placar" class="placar" aria-live="polite">
+    <p id="placar-texto" class="suave">Buscando o sorteio…</p>
+  </section>
+
+  <section class="painel" id="painel-lacre" hidden>
+    <h2>O lacre</h2>
+    <p>Este é o lacre do sorteio: a lista e as regras, travadas antes do resultado existir.
+      Se você recebeu o convite, compare o começo da impressão digital:</p>
+    <p class="impressao-curta" id="impressao-curta"></p>
+    <p class="detalhe" id="regras"></p>
+    <p class="detalhe hash">Impressão digital completa: <span id="impressao-completa"></span></p>
+    <details>
+      <summary id="resumo-participantes">Participantes</summary>
+      <ol class="participantes" id="participantes"></ol>
+    </details>
+    <p class="alerta" style="margin-top:14px">⚠ Só o convite que chegou <strong>antes</strong> de
+      <span id="prazo"></span> prova que a lista não foi trocada. Esta página mostra o lacre que
+      está no servidor; quem recebeu o convite pode conferir se é o mesmo.</p>
+    <div class="botoes-linha">
+      <button type="button" id="btn-copiar">Copiar lacre</button>
+      <a id="link-conferir" href="/conferir.html">Conferir em outra página</a>
+    </div>
+  </section>
+
+  <section class="painel">
+    <h2>Como este sorteio é conferido</h2>
+    <p>O número que decide vem do farol público <a href="https://drand.love" target="_blank" rel="noopener">drand</a>,
+      publicado no horário marcado. Esta página busca o número, confere a assinatura dele e
+      refaz a conta <strong>no seu aparelho</strong>: não é preciso confiar no organizador,
+      nem no servidor deste site. A regra está no
+      <a href="https://github.com/kafeltz/prototipo-sorteador/blob/main/COMO-FUNCIONA.md" target="_blank" rel="noopener">COMO-FUNCIONA.md</a>.</p>
+    <p class="suave" id="privacidade"></p>
+  </section>
+</main>
+
+<script src="/regra-do-sorteio.js"></script>
+<script src="/vendor/noble-bls.js"></script>
+<script src="/farol.js"></script>
+<script>
+const { RegraDoSorteio: R, Farol } = window;
+const $ = (id) => document.getElementById(id);
+const codigo = location.pathname.split('/').pop();
+const data = (iso) => new Date(iso).toLocaleString('pt-BR');
+
+// O placar do topo: um texto, e opcionalmente uma lista de vencedores
+function placar(texto, { grande = '', vencedores = null, grave = false } = {}) {
+  const alvo = $('placar');
+  alvo.classList.toggle('aviso-grave', grave);
+  const filhos = [];
+  if (grande) filhos.push(Object.assign(document.createElement('div'), { className: 'contagem', textContent: grande }));
+  filhos.push(Object.assign(document.createElement('p'), { textContent: texto }));
+  if (vencedores) {
+    const ol = document.createElement('ol');
+    ol.className = 'vencedores';
+    for (const v of vencedores) {
+      const li = document.createElement('li');
+      const nome = document.createElement('strong');
+      nome.textContent = v.nome; // textContent: um nome nunca vira HTML
+      const prova = document.createElement('span');
+      prova.className = 'detalhe';
+      prova.textContent = `nº ${v.indice + 1} de ${v.totalNaRoda} na roda`;
+      li.append(nome, prova);
+      ol.append(li);
+    }
+    filhos.push(ol);
+  }
+  alvo.replaceChildren(...filhos);
+}
+
+function mostrarLacre(sorteio, dados, impressao) {
+  document.title = `${dados.titulo} · Sorteio verificável`;
+  $('titulo').textContent = dados.titulo;
+  $('impressao-curta').textContent = impressao.slice(0, 16).match(/.{4}/g).join(' ');
+  $('regras').textContent = `${dados.vencedores} vencedor${dados.vencedores > 1 ? 'es' : ''}, ` +
+    `${dados.semRepeticao ? 'quem ganha sai da roda' : 'pode repetir'} · farol drand, rodada ${dados.rodada}`;
+  $('impressao-completa').textContent = impressao;
+  $('resumo-participantes').textContent = `Participantes (${dados.participantes.length})`;
+  $('participantes').replaceChildren(...dados.participantes.map((nome) => Object.assign(document.createElement('li'), { textContent: nome })));
+  $('prazo').textContent = R.lerHorario(dados.horario).toLocaleString('pt-BR');
+  $('link-conferir').href = `/conferir.html#lacre=${R.lacreParaLink(sorteio.lacre)}`;
+  $('privacidade').textContent = `Os nomes desta página ficam públicos até ${data(sorteio.apagarEm)}; ` +
+    'depois disso ela é apagada. O lacre continua conferível por quem guardou uma cópia.';
+  $('painel-lacre').hidden = false;
+}
+
+let sorteio, dados;
+
+async function acompanhar() {
+  const sai = R.horarioDaRodada(dados.rodada).getTime();
+  if (Date.now() < sai) {
+    // Ainda não saiu: contagem, e na hora confere sozinha
+    const faltam = Math.ceil((sai - Date.now()) / 1000);
+    const h = Math.floor(faltam / 3600), m = Math.floor((faltam % 3600) / 60), s = String(faltam % 60).padStart(2, '0');
+    placar('O farol ainda não publicou o número. Ninguém sabe quem vai ganhar, nem o organizador.',
+      { grande: h ? `${h}h${String(m).padStart(2, '0')}` : `${m}:${s}` });
+    setTimeout(acompanhar, faltam > 1 ? 1000 : 2500);
+    return;
+  }
+
+  placar('Buscando o número no farol e conferindo a assinatura…');
+  let conta;
+  try {
+    const rodada = await Farol.buscarRodada(dados.rodada);
+    conta = await R.sortearLacre(dados, rodada.aleatoriedade);
+  } catch (erro) {
+    if (!(erro instanceof Farol.ErroDoFarol)) throw erro;
+    if (erro.motivo === 'assinatura-invalida') { placar(erro.message, { grave: true }); return; }
+    placar(`${erro.message} Tentando de novo em 10 segundos.`);
+    setTimeout(acompanhar, 10000);
+    return;
+  }
+
+  // A conta foi feita aqui. O servidor também calcula; se ele discordar,
+  // vale a conta deste aparelho, e o aviso fica bem visível.
+  // O servidor calcula logo depois da rodada; se ainda não terminou, espera
+  // um pouco e pergunta de novo, uma vez só
+  let doServidor = null;
+  for (let tentativa = 0; tentativa < 2 && !doServidor; tentativa++) {
+    if (tentativa) await new Promise((r) => setTimeout(r, 4000));
+    try { doServidor = (await (await fetch(`/api/sorteios/${codigo}`)).json()).resultado; } catch {}
+  }
+  const nomes = (lista) => lista.map((v) => v.nome).join('\n');
+  if (doServidor && nomes(doServidor.vencedores) !== nomes(conta.resultados)) {
+    placar('⛔ O servidor deste site informa um resultado DIFERENTE da conta feita no seu aparelho. ' +
+      'Confie na conta abaixo, feita aqui com o farol, e avise o organizador.', { vencedores: conta.resultados, grave: true });
+    return;
+  }
+  // O "✓" vale para ESTE lacre: quem recebeu o convite confere se é o mesmo
+  placar(`✓ Conta refeita no seu aparelho, com a assinatura do farol válida, para o lacre ` +
+    `${conta.impressao.slice(0, 16).match(/.{4}/g).join(' ')} (confira se é o do seu convite):`, { vencedores: conta.resultados });
+}
+
+async function iniciar() {
+  const resposta = await fetch(`/api/sorteios/${codigo}`).catch(() => null);
+  if (!resposta || !resposta.ok) {
+    $('titulo').textContent = 'Sorteio não encontrado';
+    placar(resposta?.status === 404
+      ? 'Este endereço não existe, ou o sorteio passou do prazo de 90 dias e foi apagado.'
+      : 'Não foi possível falar com o servidor. Tente recarregar a página.');
+    return;
+  }
+  sorteio = await resposta.json();
+  dados = R.lerLacre(sorteio.lacre);
+  // A impressão digital mostrada é calculada AQUI, a partir do lacre que
+  // chegou, e não copiada do que o servidor diz. Um servidor desonesto
+  // poderia trocar a lista e repetir a impressão do convite original.
+  const impressao = await R.impressaoDigital(dados);
+  mostrarLacre(sorteio, dados, impressao);
+  if (impressao !== sorteio.impressao) {
+    placar('⛔ O lacre entregue pelo servidor não corresponde à impressão digital que o próprio servidor ' +
+      'informa. Alguém mexeu no lacre. Não confie nesta página; confira com o convite que você recebeu.', { grave: true });
+    return;
+  }
+  acompanhar();
+}
+
+$('btn-copiar').addEventListener('click', async () => {
+  await navigator.clipboard.writeText(sorteio.lacre);
+  $('btn-copiar').textContent = 'Copiado!';
+  setTimeout(() => ($('btn-copiar').textContent = 'Copiar lacre'), 1500);
+});
+
+iniciar();
+</script>
+</body>
+</html>

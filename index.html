@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
 <title>Sorteador do Auditório</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -236,7 +237,7 @@
   label.check { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   .dica { font-size: 0.85rem; color: var(--texto-suave); }
 
-  textarea, input[type=number], input[type=text], input[type=datetime-local], select {
+  textarea, input[type=number], input[type=text], input[type=password], input[type=datetime-local], select {
     width: 100%;
     margin-top: 6px;
     padding: 10px;
@@ -359,6 +360,20 @@
     text-decoration: none;
   }
   .botao[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
+  dialog h3 { margin: 16px 0 4px; font-size: 1rem; color: var(--ouro); }
+  dialog input[type=password] { flex: 1; margin-top: 0; }
+  .publicado { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .publicado a { color: var(--ouro); overflow-wrap: anywhere; }
+
+  /* QR code: sempre escuro sobre branco, senão os celulares não leem */
+  .qr { background: #fff; padding: 6px; border-radius: 8px; line-height: 0; }
+  .qr svg { width: 100%; height: auto; }
+  .publicado .qr { width: 132px; }
+  .qr-painel { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .qr-painel .qr { width: 110px; flex-shrink: 0; }
+  .qr-painel .dica { margin: 0; overflow-wrap: anywhere; }
+  body.apresentacao .qr-painel { flex-direction: column; text-align: center; }
+  body.apresentacao .qr-painel .qr { width: 200px; }
 
   /* ---------- Resultados ---------- */
   .sorteio h3 { margin: 14px 0 6px; font-size: 0.9rem; color: var(--texto-suave); }
@@ -530,6 +545,10 @@
 
   <!-- Coluna 3: resultados e transparência -->
   <aside class="painel">
+    <div id="qr-painel" class="qr-painel" hidden>
+      <div id="qr-sorteio" class="qr"></div>
+      <p class="dica">Acompanhe e confira no celular<br><strong id="qr-endereco"></strong></p>
+    </div>
     <div class="linha">
       <h2 style="margin:0">Resultados</h2>
       <span class="botoes-pequenos">
@@ -569,6 +588,24 @@
     simples: crie um evento na agenda com o lacre na descrição e convide quem vai assistir.</p>
   <textarea id="texto-lacre" readonly spellcheck="false"></textarea>
   <p class="dica">Impressão digital: <code id="impressao-lacre"></code></p>
+  <section class="publicar">
+    <h3>Endereço público (opcional)</h3>
+    <p class="dica">Uma página para quem assiste abrir pelo celular, lendo um QR code: o lacre, a
+      contagem e o resultado conferido no aparelho de cada um. <strong>A lista de nomes fica
+      pública por 90 dias.</strong> Publique antes de criar o evento, para o endereço ir no convite.</p>
+    <p id="publicar-indisponivel" class="dica" hidden>Para publicar, abra o sorteador pelo servidor
+      do projeto (no computador: <code>npm run dev</code>), e não direto do arquivo.</p>
+    <form id="publicar-form" class="linha" hidden>
+      <input type="text" name="usuario" value="organizador" autocomplete="username" hidden>
+      <input type="password" id="senha-organizador" placeholder="Senha do organizador" autocomplete="current-password" required>
+      <button type="submit" id="btn-publicar">Publicar</button>
+    </form>
+    <p id="publicar-status" class="dica" role="status"></p>
+    <div id="publicado" class="publicado" hidden>
+      <div id="qr-dialogo" class="qr"></div>
+      <p><a id="link-publico" target="_blank" rel="noopener"></a></p>
+    </div>
+  </section>
   <div class="acoes-dialogo">
     <a id="link-agenda" class="botao" target="_blank" rel="noopener">📅 Criar evento no Google Agenda</a>
     <button type="button" id="btn-copiar-lacre">Copiar lacre</button>
@@ -587,6 +624,7 @@
 <script src="regra-do-sorteio.js"></script>
 <script src="vendor/noble-bls.js"></script>
 <script src="farol.js"></script>
+<script src="vendor/qrcode.js"></script>
 <script>
 /* =====================================================================
    1. ALEATORIEDADE — a parte que precisa ser justa
@@ -647,11 +685,9 @@ function carregarHistorico() {
   }
 }
 
-// "Ana Souza", "ana souza" e "Ána  Souza" viram a mesma chave
-function chave(nome) {
-  return nome.normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/\s+/g, ' ').trim();
-}
+// "Ana Souza", "ana souza" e "Ána  Souza" viram a mesma chave. É a mesma
+// regra que o lacre usa para recusar repetidos (regra-do-sorteio.js).
+const chave = RegraDoSorteio.chaveDoNome;
 
 // Lê a caixa de texto e devolve [{ id, nome }]. Com a lista lacrada, quem
 // manda é o lacre: a roda precisa ter exatamente os nomes e a ordem dele.
@@ -1037,7 +1073,10 @@ async function sortear() {
   if (estado.vencedores.length === 0) {
     const sorteio = { numero: estado.sorteios.length + 1, inicio: new Date(), resultados: [] };
     // No verificável, o comprovante leva o lacre: com ele, qualquer um confere
-    if (estado.lacre) sorteio.verificavel = { lacre: estado.lacre.texto, rodada: estado.lacre.dados.rodada, impressao: estado.lacre.impressao };
+    if (estado.lacre) {
+      const { texto, dados, impressao, endereco } = estado.lacre;
+      sorteio.verificavel = { lacre: texto, rodada: dados.rodada, impressao, endereco };
+    }
     estado.sorteios.push(sorteio);
   }
   estado.vencedores.push(vencedor.id);
@@ -1069,6 +1108,7 @@ function novoSorteio() {
    ===================================================================== */
 
 const CHAVE_LACRE = 'sorteador:lacre';
+const CHAVE_ENDERECO = 'sorteador:lacre-endereco'; // endereço público, se o lacre foi publicado
 const MIN_ANTECEDENCIA_MS = 60 * 1000; // o lacre precisa de tempo para chegar antes do número
 
 // "Daqui a 10 minutos, minuto cheio", no formato do campo datetime-local
@@ -1120,9 +1160,9 @@ async function lacrar() {
   mostrarLacre();
 }
 
-async function aplicarLacre(texto) {
+async function aplicarLacre(texto, endereco = null) {
   const dados = RegraDoSorteio.lerLacre(texto);
-  estado.lacre = { texto, dados, impressao: await RegraDoSorteio.impressaoDigital(dados), resultados: null };
+  estado.lacre = { texto, dados, impressao: await RegraDoSorteio.impressaoDigital(dados), resultados: null, endereco };
   estado.vencedores = [];
   // Os campos passam a mostrar o que está no lacre
   $('nomes').value = dados.participantes.join('\n');
@@ -1137,18 +1177,14 @@ async function aplicarLacre(texto) {
 function encerrarLacre() {
   estado.lacre = null;
   estado.aviso = '';
-  try { localStorage.removeItem(CHAVE_LACRE); } catch {}
+  try { localStorage.removeItem(CHAVE_LACRE); localStorage.removeItem(CHAVE_ENDERECO); } catch {}
   $('horario').value = horarioSugerido();
 }
 
 // Endereço do conferidor com o lacre embutido depois do "#": essa parte do
 // endereço nunca sai do navegador.
 function enderecoDoConferidor(texto) {
-  const bytes = new TextEncoder().encode(texto);
-  let binario = '';
-  for (const b of bytes) binario += String.fromCharCode(b);
-  const base64 = btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return `${new URL('conferir.html', location.href)}#lacre=${base64}`;
+  return `${new URL('conferir.html', location.href)}#lacre=${RegraDoSorteio.lacreParaLink(texto)}`;
 }
 
 // O mesmo endereço, para mandar a outras pessoas. Aberto direto do disco
@@ -1160,7 +1196,8 @@ function linkParaConferir(texto) {
 // O texto que vai na descrição do evento: o lacre e como conferir
 function descricaoDoEvento() {
   const link = linkParaConferir(estado.lacre.texto);
-  return `${estado.lacre.texto}\n\n` + (link
+  const aoVivo = estado.lacre.endereco ? `Acompanhe ao vivo: ${estado.lacre.endereco}\n` : '';
+  return `${estado.lacre.texto}\n\n${aoVivo}` + (link
     ? `Para conferir depois do sorteio: ${link}`
     : 'Para conferir depois do sorteio: abra o conferir.html do projeto (github.com/kafeltz/prototipo-sorteador) e cole este lacre.');
 }
@@ -1191,7 +1228,71 @@ function mostrarLacre() {
   $('link-agenda').href = agenda || '#';
   $('link-agenda').setAttribute('aria-disabled', String(!agenda));
   $('aviso-agenda').hidden = Boolean(agenda);
-  $('dialogo-lacre').showModal();
+  atualizarPublicacao();
+  if (!$('dialogo-lacre').open) $('dialogo-lacre').showModal();
+}
+
+// ---------- Endereço público e QR code (o servidor é opcional) ----------
+
+// O sorteador foi aberto pelo servidor do projeto? Só assim dá para publicar.
+let servidorDisponivel = false;
+async function procurarServidor() {
+  if (!location.protocol.startsWith('http')) return;
+  try {
+    const resposta = await fetch(new URL('api/saude', location.href));
+    servidorDisponivel = resposta.ok && (await resposta.json()).ok === true; // lê até o fim: resposta pela metade fica "pendurada"
+  } catch {
+    servidorDisponivel = false;
+  }
+}
+
+function desenharQR(alvo, texto) {
+  if (alvo.dataset.texto === texto) return; // já desenhado
+  const qr = qrcode(0, 'M'); // tamanho automático, correção de erro média
+  qr.addData(texto);
+  qr.make();
+  const titulo = { text: `QR code do endereço ${texto}`, id: `${alvo.id}-titulo` }; // um id por QR na página
+  alvo.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true, title: titulo });
+  alvo.dataset.texto = texto;
+}
+
+function atualizarPublicacao() {
+  const endereco = estado.lacre?.endereco;
+  $('publicar-indisponivel').hidden = servidorDisponivel || Boolean(endereco);
+  $('publicar-form').hidden = !servidorDisponivel || Boolean(endereco);
+  $('publicado').hidden = !endereco;
+  if (endereco) {
+    desenharQR($('qr-dialogo'), endereco);
+    $('link-publico').href = endereco;
+    $('link-publico').textContent = endereco;
+  }
+}
+
+async function publicar(evento) {
+  evento.preventDefault();
+  const status = $('publicar-status');
+  $('btn-publicar').disabled = true;
+  status.textContent = 'Publicando…';
+  try {
+    const resposta = await fetch(new URL('api/sorteios', location.href), {
+      method: 'POST',
+      headers: { authorization: `Bearer ${$('senha-organizador').value}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ lacre: estado.lacre.texto }),
+    });
+    const corpo = await resposta.json();
+    if (!resposta.ok) throw new Error(corpo.erro || `O servidor respondeu ${resposta.status}.`);
+    estado.lacre.endereco = corpo.endereco;
+    try { localStorage.setItem(CHAVE_ENDERECO, corpo.endereco); } catch {}
+    $('senha-organizador').value = ''; // a senha não fica guardada em lugar nenhum
+    status.textContent = '✓ Publicado. O endereço já está no texto do convite acima.';
+    mostrarLacre();
+    atualizarTela();
+  } catch (erro) {
+    status.textContent = `Não foi possível publicar: ${erro.message}`;
+    $('senha-organizador').select(); // digitar de novo substitui a senha errada
+  } finally {
+    $('btn-publicar').disabled = false;
+  }
 }
 
 // Busca a rodada (uma vez só) e devolve o próximo vencedor já decidido.
@@ -1264,6 +1365,11 @@ function atualizarTela() {
   $('opcoes-verificavel').hidden = !verificavel || Boolean(lacre);
   $('lacrado').hidden = !lacre;
   $('selo-lacre').hidden = !lacre;
+  $('qr-painel').hidden = !lacre?.endereco;
+  if (lacre?.endereco) {
+    desenharQR($('qr-sorteio'), lacre.endereco);
+    $('qr-endereco').textContent = lacre.endereco.replace(/^https?:\/\//, '');
+  }
   if (lacre) {
     const quando = RegraDoSorteio.lerHorario(lacre.dados.horario).toLocaleString('pt-BR');
     $('lacrado-texto').textContent = `🔒 Lista lacrada para ${quando}.`;
@@ -1352,6 +1458,7 @@ function textoDosResultados() {
     return `Sorteio #${s.numero} (${s.inicio.toLocaleString('pt-BR')})\n` +
       s.resultados.map((r) => `${r.posicao}º ${r.nome} — nº ${r.sorteado} de ${r.totalNaRoda}`).join('\n') +
       (s.verificavel ? `\nVerificável: farol drand, rodada ${s.verificavel.rodada}, lacre ${impressaoCurta(s.verificavel.impressao)}` : '') +
+      (s.verificavel?.endereco ? `\nPágina do sorteio: ${s.verificavel.endereco}` : '') +
       (link ? `\nConfira: ${link}` : '');
   }).join('\n\n');
 }
@@ -1550,6 +1657,7 @@ document.addEventListener('fullscreenchange', () => {
 // Sorteio verificável
 $('verificavel').addEventListener('change', () => { estado.aviso = ''; atualizarTela(); });
 $('btn-lacrar').addEventListener('click', lacrar);
+$('publicar-form').addEventListener('submit', publicar);
 $('btn-ver-lacre').addEventListener('click', mostrarLacre);
 $('btn-fechar-lacre').addEventListener('click', () => $('dialogo-lacre').close());
 $('btn-copiar-lacre').addEventListener('click', async () => {
@@ -1576,13 +1684,13 @@ document.fonts?.ready.then(() => desenharRoda());
 // sumir no meio da live só porque o navegador fechou.
 async function retomarLacre() {
   $('horario').value = horarioSugerido();
-  let texto = null;
-  try { texto = localStorage.getItem(CHAVE_LACRE); } catch {}
+  let texto = null, endereco = null;
+  try { texto = localStorage.getItem(CHAVE_LACRE); endereco = localStorage.getItem(CHAVE_ENDERECO); } catch {}
   if (!texto) return;
   try {
-    await aplicarLacre(texto);
+    await aplicarLacre(texto, endereco);
   } catch {
-    try { localStorage.removeItem(CHAVE_LACRE); } catch {} // lacre estragado: descarta
+    try { localStorage.removeItem(CHAVE_LACRE); localStorage.removeItem(CHAVE_ENDERECO); } catch {} // lacre estragado: descarta
   }
 }
 
@@ -1590,6 +1698,7 @@ carregarHistorico();
 atualizarTela();
 renderizarHistorico();
 retomarLacre();
+procurarServidor();
 </script>
 </body>
 </html>

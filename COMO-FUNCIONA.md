@@ -151,10 +151,11 @@ Antes de qualquer código, a pergunta foi: **quem pode trapacear, e como?**
 | Sortear várias vezes até sair quem ele quer | O acaso vem de um **farol público**, num horário futuro anunciado antes. Ninguém conhece o número antes da hora, nem o organizador |
 | Escolher uma "semente" a dedo | Ninguém escolhe a semente: ela sai do número do farol |
 | Mexer na lista depois de ver o número | A lista vai no **lacre**, entregue às testemunhas antes do horário |
-| Inflar as chances com nomes repetidos | A lista inteira fica à vista no lacre, já sem os repetidos |
+| Inflar as chances com nomes repetidos | O lacre **recusa** nomes repetidos, inclusive com outra grafia ("Ana Souza" e "ána souza"), e a lista inteira fica à vista |
 | Mostrar um sorteio e esconder outro | O lacre é público e as testemunhas comparam o que receberam com o que veem na tela |
 | Alterar o lacre depois de enviado | O lacre que vale é o **e-mail** que chegou, e não um arquivo ou evento que dá para editar |
 | O nosso servidor mentir o número do farol | O farol **assina** cada número, e o navegador de quem confere verifica a assinatura |
+| O nosso servidor trocar a lista na página pública | A página calcula a impressão digital **no aparelho de quem abre**, para comparar com o convite; nunca copia a do servidor |
 | O nosso código fazer a conta errada de propósito | A regra é pública e simples, e existe um conferidor independente que qualquer um pode rodar |
 
 ### O lacre e o farol
@@ -315,7 +316,14 @@ stateDiagram-v2
 
 - **O servidor não precisa ser confiável.** Ele guarda e devolve o lacre, e
   calcula o resultado por conveniência. Quem confere de verdade é o
-  navegador de quem olha, com o farol e a regra.
+  navegador de quem olha: a página calcula a impressão digital a partir do
+  lacre recebido (nunca copia a que o servidor informa), busca o farol e
+  refaz a conta. Se o servidor discordar, a página avisa em vermelho.
+- **O lacre chega sempre, na hora.** A consulta devolve só o que está
+  guardado; o cálculo com o farol acontece **depois** de responder, com uma
+  trava no banco (uma tentativa a cada 30 segundos por sorteio). Nem o farol
+  fora do ar nem mil pessoas abrindo a página ao mesmo tempo atrasam o
+  lacre.
 - **Lacre de rodada que já saiu é recusado**, como no sorteador: quem
   publicasse poderia conhecer o resultado antes.
 - **O mesmo lacre publicado duas vezes é o mesmo sorteio** (a impressão
@@ -328,10 +336,14 @@ stateDiagram-v2
   comparação da senha leva sempre o mesmo tempo, acertando ou errando.
 - **Nada além do lacre é guardado:** nenhum e-mail, IP ou cookie. E tudo some
   90 dias depois do horário do sorteio.
+- **Cabeçalhos de segurança em todas as páginas** (arquivo `_headers`): a
+  política de conteúdo só deixa as páginas buscarem dados do próprio site e do
+  farol, e nenhuma página pode ser aberta dentro de outro site. Assim, ninguém
+  "emoldura" o diálogo da senha num site falso.
 
 **Onde está:** `servidor/index.js` (as rotas, `publicar()`, `consultar()`,
-`exigirOrganizador()` e a limpeza em `scheduled()`), a tabela em
-`servidor/migracoes/0001_sorteios.sql`, a configuração em `wrangler.jsonc` e
+`calcularResultado()`, `exigirOrganizador()` e a limpeza em `scheduled()`),
+as tabelas em `servidor/migracoes/`, os cabeçalhos em `_headers`, a configuração em `wrangler.jsonc` e
 os testes em `testes/servidor.test.mjs`.
 
 ---

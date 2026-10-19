@@ -57,8 +57,14 @@ after(() => {
 const lacreFuturo = (titulo, segundos = 300) => R.escreverLacre({
   titulo, horario: R.formatarHorario(new Date(Date.now() + segundos * 1000)), vencedores: 1, semRepeticao: true, participantes: ['Ana', 'Bia', 'Caio'],
 });
-const publicar = (lacre, senha = SENHA) => fetch(`${base}/api/sorteios`, {
-  method: 'POST', headers: { authorization: `Bearer ${senha}` }, body: JSON.stringify({ lacre }),
+// Cada chamada finge vir de um computador diferente (o limite de tentativas
+// é por IP). Em produção, quem preenche esse cabeçalho é a Cloudflare, e
+// ninguém consegue forjá-lo; no wrangler dev, o teste pode.
+let ultimoIp = 0;
+const outroIp = () => `10.0.0.${++ultimoIp}`;
+const comSenha = (senha = SENHA, ip = outroIp()) => ({ authorization: `Bearer ${senha}`, 'cf-connecting-ip': ip });
+const publicar = (lacre, senha = SENHA, ip = outroIp()) => fetch(`${base}/api/sorteios`, {
+  method: 'POST', headers: comSenha(senha, ip), body: JSON.stringify({ lacre }),
 });
 
 test('publica só os arquivos da lista de permitidos', async () => {
@@ -67,6 +73,16 @@ test('publica só os arquivos da lista de permitidos', async () => {
   }
   for (const caminho of ['/package.json', '/servidor/index.js', '/wrangler.jsonc', '/.dev.vars', '/DIARIO.md', '/vendor/README.md', '/testes/vetores.json']) {
     assert.equal((await fetch(base + caminho)).status, 404, caminho);
+  }
+});
+
+test('a página pública do sorteio abre em /s/<código>', async () => {
+  const pagina = await fetch(`${base}/s/passado22222`);
+  assert.equal(pagina.status, 200);
+  assert.match(await pagina.text(), /Sorteio verificável/);
+  assert.equal((await fetch(`${base}/s/nao-existe`)).status, 404);
+  for (const caminho of ['/sorteio.html', '/estilo-paginas.css', '/vendor/qrcode.js']) {
+    assert.ok([200, 307].includes((await fetch(base + caminho, { redirect: 'manual' })).status), caminho);
   }
 });
 
@@ -99,11 +115,18 @@ test('lacre de rodada que já saiu é recusado', async () => {
   assert.match((await r.json()).erro, /já passou/);
 });
 
+test('corpo grande demais é recusado antes de ser lido', async () => {
+  const r = await fetch(`${base}/api/sorteios`, {
+    method: 'POST', headers: comSenha(), body: 'x'.repeat(1024 * 1024 + 1),
+  });
+  assert.equal(r.status, 413);
+});
+
 test('lacre quebrado e corpo que não é JSON são recusados, com explicação', async () => {
   const quebrado = await publicar('SORTEIO VERIFICÁVEL (versão 1)\nTítulo: x');
   assert.equal(quebrado.status, 400);
   assert.match((await quebrado.json()).erro, /^Lacre inválido/);
-  const lixo = await fetch(`${base}/api/sorteios`, { method: 'POST', headers: { authorization: `Bearer ${SENHA}` }, body: 'lixo' });
+  const lixo = await fetch(`${base}/api/sorteios`, { method: 'POST', headers: comSenha(), body: 'lixo' });
   assert.equal(lixo.status, 400);
 });
 
@@ -113,9 +136,17 @@ test('código inexistente ou malformado: 404', async () => {
   assert.equal((await fetch(`${base}/api/sorteios/AAAA'OR'1'='1`)).status, 404);
 });
 
-test('depois da rodada, o servidor calcula o resultado com o farol (precisa de internet)', async () => {
-  const s = await (await fetch(`${base}/api/sorteios/passado22222`)).json();
-  assert.ok(s.resultado, JSON.stringify(s.farol));
+test('depois da rodada, o servidor calcula o resultado com o farol, sem atrasar a resposta (precisa de internet)', async () => {
+  // A primeira consulta responde na hora, só com o lacre; a conta acontece
+  // depois de responder e fica guardada para as próximas
+  const primeira = await (await fetch(`${base}/api/sorteios/passado22222`)).json();
+  assert.equal(primeira.lacre.split('\n')[0], 'SORTEIO VERIFICÁVEL (versão 1)');
+  let s = primeira;
+  for (let i = 0; i < 30 && !s.resultado; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    s = await (await fetch(`${base}/api/sorteios/passado22222`)).json();
+  }
+  assert.ok(s.resultado, 'o servidor não guardou o resultado em 15 s');
   assert.deepEqual(s.resultado.vencedores.map((v) => v.nome), vetores[1].vencedores);
   assert.equal(s.resultado.aleatoriedade, vetores[1].aleatoriedade);
 });
@@ -131,14 +162,14 @@ test('o organizador apaga antes do prazo', async () => {
   const { id } = await (await publicar(lacreFuturo('Apagar'))).json();
   const semSenha = await fetch(`${base}/api/sorteios/${id}`, { method: 'DELETE' });
   assert.equal(semSenha.status, 401);
-  const comSenha = await fetch(`${base}/api/sorteios/${id}`, { method: 'DELETE', headers: { authorization: `Bearer ${SENHA}` } });
-  assert.equal(comSenha.status, 204);
+  const apagado = await fetch(`${base}/api/sorteios/${id}`, { method: 'DELETE', headers: comSenha() });
+  assert.equal(apagado.status, 204);
   assert.equal((await fetch(`${base}/api/sorteios/${id}`)).status, 404);
 });
 
-// Por último: depois dele, a senha fica bloqueada por um minuto
 test('quem tenta adivinhar a senha é barrado depois de 10 tentativas por minuto', async () => {
   const status = [];
-  for (let i = 0; i < 12; i++) status.push((await publicar(lacreFuturo('Força bruta'), `chute-${i}`)).status);
+  // Todas do MESMO endereço, como um atacante sem truque
+  for (let i = 0; i < 12; i++) status.push((await publicar(lacreFuturo('Força bruta'), `chute-${i}`, '10.9.9.9')).status);
   assert.ok(status.includes(429), status.join(' '));
 });

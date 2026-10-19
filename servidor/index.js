@@ -26,12 +26,13 @@ const TAMANHO_MAXIMO = 1024 * 1024;   // 1 MB de lacre basta para milhares de no
 const ALFABETO = 'abcdefghijkmnpqrstuvwxyz23456789'; // sem l, o, 0 e 1, que se confundem
 const TAMANHO_CODIGO = 12;            // 32^12: ninguém adivinha o código de outro sorteio
 const CODIGO = /^[a-z2-9]{12}$/;
+const INTERVALO_TENTATIVAS_MS = 30 * 1000; // entre duas tentativas de calcular o resultado
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     try {
-      return await rotear(request, env, url);
+      return await rotear(request, env, url, ctx);
     } catch (erro) {
       if (erro instanceof ErroHttp) return json({ erro: erro.message }, erro.status);
       console.error(erro);
@@ -47,7 +48,7 @@ export default {
   },
 };
 
-async function rotear(request, env, url) {
+async function rotear(request, env, url, ctx) {
   const { pathname } = url;
   const metodo = request.method;
 
@@ -56,7 +57,7 @@ async function rotear(request, env, url) {
 
   const api = /^\/api\/sorteios\/([^/]+)$/.exec(pathname);
   if (api && CODIGO.test(api[1])) {
-    if (metodo === 'GET') return consultar(env, api[1]);
+    if (metodo === 'GET') return consultar(env, api[1], ctx);
     if (metodo === 'DELETE') return apagar(request, env, api[1]);
   }
 
@@ -108,7 +109,7 @@ async function publicar(request, env, url) {
   return json(resumo(url, id, impressao, dados), 201);
 }
 
-async function consultar(env, id) {
+async function consultar(env, id, ctx) {
   const linha = await env.DB.prepare('SELECT * FROM sorteios WHERE id = ?').bind(id).first();
   if (!linha) throw new ErroHttp(404, 'Sorteio não encontrado. Ele pode ter passado do prazo de 90 dias.');
 
@@ -125,26 +126,39 @@ async function consultar(env, id) {
     resultado: linha.resultado ? JSON.parse(linha.resultado) : null,
   };
 
-  // Primeira consulta depois que a rodada saiu: calcula e guarda. É só uma
-  // conveniência; a página do sorteio confere a conta por conta própria.
+  // A rodada saiu e o resultado ainda não foi guardado: calcula DEPOIS de
+  // responder (waitUntil). Assim o lacre chega sempre, na hora, mesmo que o
+  // farol esteja fora do ar ou a conta demore. O resultado do servidor é só
+  // uma conveniência: a página do sorteio refaz a conta por conta própria.
   if (!resposta.resultado && Date.now() >= R.horarioDaRodada(linha.rodada).getTime()) {
-    try {
-      const rodada = await Farol.buscarRodada(linha.rodada);
-      const conta = await R.sortearLacre(dados, rodada.aleatoriedade);
-      resposta.resultado = {
-        aleatoriedade: rodada.aleatoriedade,
-        assinatura: rodada.assinatura,
-        semente: conta.semente,
-        vencedores: conta.resultados,
-      };
-      await env.DB.prepare('UPDATE sorteios SET resultado = ? WHERE id = ? AND resultado IS NULL')
-        .bind(JSON.stringify(resposta.resultado), id).run();
-    } catch (erro) {
-      if (!(erro instanceof Farol.ErroDoFarol)) throw erro;
-      resposta.farol = { motivo: erro.motivo, mensagem: erro.message };
-    }
+    ctx.waitUntil(calcularResultado(env, id, dados));
   }
   return json(resposta);
+}
+
+async function calcularResultado(env, id, dados) {
+  // A trava: só segue quem conseguir marcar a tentativa no banco. Com mil
+  // pessoas abrindo a página no mesmo segundo, uma calcula e as outras não.
+  const agora = new Date();
+  const { meta } = await env.DB.prepare(
+    'UPDATE sorteios SET tentativa_em = ? WHERE id = ? AND resultado IS NULL AND (tentativa_em IS NULL OR tentativa_em < ?)',
+  ).bind(agora.toISOString(), id, new Date(agora.getTime() - INTERVALO_TENTATIVAS_MS).toISOString()).run();
+  if (meta.changes === 0) return;
+
+  try {
+    const rodada = await Farol.buscarRodada(dados.rodada);
+    const conta = await R.sortearLacre(dados, rodada.aleatoriedade);
+    const resultado = {
+      aleatoriedade: rodada.aleatoriedade,
+      assinatura: rodada.assinatura,
+      semente: conta.semente,
+      vencedores: conta.resultados,
+    };
+    await env.DB.prepare('UPDATE sorteios SET resultado = ? WHERE id = ? AND resultado IS NULL')
+      .bind(JSON.stringify(resultado), id).run();
+  } catch (erro) {
+    console.error(`Sorteio ${id}: não deu para calcular o resultado agora.`, erro.message);
+  }
 }
 
 async function apagar(request, env, id) {
@@ -185,6 +199,9 @@ function novoCodigo() {
 }
 
 async function lerJson(request) {
+  // Recusa antes de ler, quando o tamanho vem anunciado; e confere de novo
+  // depois, porque o anúncio pode faltar
+  if (Number(request.headers.get('content-length') || 0) > TAMANHO_MAXIMO) throw new ErroHttp(413, 'Lacre grande demais.');
   const texto = await request.text();
   if (texto.length > TAMANHO_MAXIMO) throw new ErroHttp(413, 'Lacre grande demais.');
   try {
