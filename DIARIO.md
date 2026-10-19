@@ -1001,3 +1001,74 @@ O teste quebrou três vezes, e só uma delas era defeito do código:
 > celular, desconfiar do servidor. E quando um teste falhar, pergunte primeiro
 > se a falha é do código ou do teste. Às vezes é do teste e, mesmo assim, ela
 > ensina alguma coisa sobre o código.
+
+---
+
+## Ato 20: Pensando como atacante
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Com tudo funcionando, pedi uma **revisão de segurança independente**: outra
+sessão de IA, que não tinha visto nada desta conversa, leu o código com uma
+missão só, a de achar furos com cenário concreto e arquivo e linha. Quem
+escreveu o código é a pior pessoa para revisá-lo: lê o que quis escrever, e
+não o que escreveu.
+
+### O que ela achou
+
+Dois achados sérios, que eu não tinha visto:
+
+- **A página da testemunha confiava no servidor justamente onde não podia.**
+  Ela mostrava a impressão digital que o servidor *dizia* ter. Um servidor
+  desonesto poderia trocar a lista e repetir a impressão do convite: a
+  testemunha compararia, veria tudo batendo e confiaria. Agora a impressão é
+  calculada no aparelho de quem abre. Testei os dois jeitos de mentir: o
+  servidor repetindo a impressão antiga (alerta vermelho) e o servidor
+  calculando uma impressão nova para a lista trocada (ela aparece na tela, e
+  não é a do convite).
+- **A tabela de trapaças prometia algo que o código não fazia.** Dizia que
+  nomes repetidos estavam cobertos, mas o lacre aceitava "Ana Souza" duas
+  vezes. Agora recusa, inclusive "ána souza".
+
+E alguns médios: uma linha "18. Fulano" depois da lista era ignorada em
+silêncio (quem lesse o convite acharia que Fulano concorre); o número de
+vencedores não tinha teto e podia travar o navegador; "30 de fevereiro"
+virava 2 de março; e o servidor fazia a conta pesada do farol dentro da
+consulta, podendo deixar a testemunha sem nem o lacre. Cada achado virou um
+commit com teste.
+
+### O que ela confirmou
+
+Também valeu saber o que estava certo: nenhum nome chega à página como
+HTML, todas as consultas ao banco usam parâmetros, a comparação da senha é
+em tempo constante e a lista de permitidos publica exatamente oito arquivos.
+
+### O ataque de verdade
+
+Alguns testes só valem na nuvem. Contra o servidor publicado, tentei
+adivinhar a senha: depois de umas 10 tentativas, ele responde "Tentativas
+demais". Tentei fingir ser outro computador a cada tentativa, forjando o
+cabeçalho de endereço: a própria Cloudflare recusa o pedido antes de ele
+chegar ao código.
+
+### Dois tropeços meus
+
+- **Uma correção que quebrou outra página.** Ao mostrar a lista de nomes no
+  conferidor, declarei uma variável com um nome que já existia, e a página
+  inteira parou. Nenhum teste percebeu, porque nenhum olhava o JavaScript
+  dentro do HTML. Agora tem um teste para isso, e ele foi conferido
+  reintroduzindo o erro de propósito.
+- **Uma mudança no banco que não foi aplicada.** O código novo foi para a
+  nuvem antes da coluna nova existir no banco, e o filtro que eu usava na
+  saída do comando escondeu o aviso. Conferindo a tabela, a coluna não estava
+  lá. Regra que fica: primeiro o banco, depois o código, e **conferir**, nunca
+  supor.
+
+### Lição
+
+> Peça a alguém que não escreveu o código para atacá-lo, e dê a essa pessoa
+> o seu modelo de ameaça: os furos mais perigosos estão onde a documentação
+> promete mais do que o código cumpre. E alguns ataques só se testam no
+> mundo real.
