@@ -568,3 +568,52 @@ comunidade, e sem precisar de servidor.
 > as regras que não podem ser quebradas. E "mais aleatório" não é o mesmo que
 > "verificável": antes de buscar a solução, descubra qual é o problema de
 > verdade.
+
+---
+
+## Ato 12: O projeto muda de mãos
+
+**Data:** 19/10/2026
+
+### O que aconteceu
+
+Os alunos que iam continuar o sorteador saíram do projeto. Sigo sozinho, e o
+diário muda um pouco de papel: passa a registrar **como o trabalho seria
+feito**, para quem quiser aprender com ele depois.
+
+A ambição também mudou. Até aqui era um protótipo; agora a meta é deixar o
+sorteador **pronto para produção**, começando pelo que as issues
+[#3](https://github.com/kafeltz/prototipo-sorteador/issues/3) (precisamos de um
+servidor?) e [#4](https://github.com/kafeltz/prototipo-sorteador/issues/4)
+(sorteio que o público consegue conferir) deixaram em aberto.
+
+### O que eu pedi
+
+Primeiro, só um plano, sem código. Depois, que a IA executasse o plano inteiro
+sozinha, por horas, sem me pedir ok a cada passo.
+
+### O que foi decidido
+
+- **O plano em marcos, e cada marco em atos.** Primeiro o sorteio verificável
+  sem servidor; depois o servidor; por último o ensaio geral. Cada marco é
+  útil sozinho: se o trabalho parar no meio, o que ficou pronto funciona.
+- **Sozinho, mas com pull request.** Nada vai direto para a `main`: cada marco
+  vira um PR, que só entra com os testes passando. Ninguém revisa na hora, mas o
+  histórico fica do jeito que uma pessoa conseguiria revisar depois.
+- **Autonomia com regras combinadas antes.** A IA trabalha sem esperar meu ok
+  entre os itens, mas continua fazendo um item por commit, conferido antes do
+  próximo, como no Ato 7. E ficou escrito quando ela **para e me chama**: algo
+  que exige conta, chave ou DNS; uma decisão de produto que aparece no meio do
+  caminho; um teste que falha sem ela entender por quê.
+- **Quatro decisões tomadas antes de começar**, porque mexem com coisa
+  pública: o servidor vai para um endereço de prévia, e não para o domínio
+  oficial, até a apresentação passar; só eu crio sorteios no servidor, com uma
+  senha; a lista de participantes de um sorteio fica pública, com aviso, por
+  90 dias; e a IA pode fazer o merge dos PRs quando os testes passarem.
+
+### Lição
+
+> Quando a equipe vai embora, sobra o que foi escrito: o diário, as issues e
+> os diagramas. Foi isso que permitiu retomar sem perder nada. E deixar a IA
+> trabalhar sozinha por horas só é seguro com as regras combinadas antes: o
+> ritmo, onde ela entrega e quando ela tem que parar.
