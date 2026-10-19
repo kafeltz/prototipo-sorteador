@@ -70,6 +70,16 @@ test('publica só os arquivos da lista de permitidos', async () => {
   }
 });
 
+test('a página pública do sorteio abre em /s/<código>', async () => {
+  const pagina = await fetch(`${base}/s/passado22222`);
+  assert.equal(pagina.status, 200);
+  assert.match(await pagina.text(), /Sorteio verificável/);
+  assert.equal((await fetch(`${base}/s/nao-existe`)).status, 404);
+  for (const caminho of ['/sorteio.html', '/estilo-paginas.css', '/vendor/qrcode.js']) {
+    assert.ok([200, 307].includes((await fetch(base + caminho, { redirect: 'manual' })).status), caminho);
+  }
+});
+
 test('sem a senha certa, ninguém publica', async () => {
   assert.equal((await publicar(lacreFuturo('Sem senha'), '')).status, 401);
   assert.equal((await publicar(lacreFuturo('Senha errada'), 'chute')).status, 401);

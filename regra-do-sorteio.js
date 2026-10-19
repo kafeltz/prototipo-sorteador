@@ -274,6 +274,22 @@
     return { impressao, semente: sementeHex, resultados };
   }
 
+  /* ---------- 6. O lacre dentro de um link ---------- */
+
+  // O lacre vai depois do "#" do endereço (conferir.html#lacre=...), em
+  // base64 "de URL" (sem +, / e =). A parte depois do "#" nunca sai do
+  // navegador: o servidor não vê o lacre de quem só confere.
+  function lacreParaLink(texto) {
+    let binario = '';
+    for (const byte of new TextEncoder().encode(texto)) binario += String.fromCharCode(byte);
+    return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function lacreDoLink(codigo) {
+    const binario = atob(codigo.replace(/-/g, '+').replace(/_/g, '/'));
+    return new TextDecoder().decode(Uint8Array.from(binario, (c) => c.charCodeAt(0)));
+  }
+
   globalThis.RegraDoSorteio = {
     FAROL,
     ErroNoLacre,
@@ -292,5 +308,7 @@
     numerosDaSemente,
     sortearComSemente,
     sortearLacre,
+    lacreParaLink,
+    lacreDoLink,
   };
 })();

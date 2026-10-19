@@ -3,98 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
 <title>Conferir um sorteio · Sorteador do Auditório</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-  /* As mesmas cores do tema Clássico do sorteador */
-  :root {
-    --palco: #12062e;
-    --palco-2: #2e0f66;
-    --ouro: #ffc93c;
-    --ouro-rgb: 255, 201, 60;
-    --texto: #fff8e7;
-    --texto-suave: #cbbcf0;
-    --painel: rgba(255, 255, 255, 0.06);
-    --borda: rgba(var(--ouro-rgb), 0.35);
-    --ok: #5ee08a;
-    --erro: #ff7a85;
-    --titulo: 'Bungee', 'Arial Black', system-ui, sans-serif;
-    --fonte: 'Nunito', system-ui, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    padding: 24px 16px 48px;
-    color: var(--texto);
-    font-family: var(--fonte);
-    line-height: 1.5;
-    background: radial-gradient(ellipse at 50% 120%, var(--palco-2), var(--palco) 70%) fixed var(--palco);
-  }
-  main { max-width: 760px; margin: 0 auto; }
-  h1 {
-    margin: 0 0 4px;
-    font-family: var(--titulo);
-    font-weight: 400;
-    font-size: clamp(1.5rem, 6vw, 2.4rem);
-    color: var(--ouro);
-    text-shadow: 0 3px 0 #a0331f;
-  }
-  h2 { margin: 0 0 8px; font-size: 1.05rem; color: var(--ouro); }
-  a { color: var(--ouro); }
-  p { margin: 0 0 12px; }
-  .suave { color: var(--texto-suave); }
-  .painel {
-    margin-top: 20px;
-    padding: 18px;
-    border: 1px solid var(--borda);
-    border-radius: 16px;
-    background: var(--painel);
-  }
-  textarea {
-    width: 100%;
-    min-height: 220px;
-    padding: 12px;
-    border: 1px solid var(--borda);
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.3);
-    color: var(--texto);
-    font: 0.9rem/1.4 ui-monospace, monospace;
-    resize: vertical;
-  }
-  button {
-    margin-top: 12px;
-    padding: 12px 28px;
-    border: 3px solid #fff3b0;
-    border-radius: 999px;
-    background: linear-gradient(#ff5a5f, #c1121f);
-    color: #fff;
-    font: 400 1.1rem var(--titulo);
-    cursor: pointer;
-    box-shadow: 0 5px 0 #7a0a12;
-  }
-  button:focus-visible { outline: 3px solid var(--ouro); outline-offset: 3px; }
-  ol.passos { margin: 0; padding: 0; list-style: none; }
-  .passos > li {
-    display: grid;
-    grid-template-columns: 28px 1fr;
-    gap: 8px;
-    padding: 10px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .passos > li:first-child { border-top: 0; }
-  .icone { font-size: 1.2rem; line-height: 1.4; }
-  .ok .icone { color: var(--ok); }
-  .erro .icone { color: var(--erro); }
-  .detalhe { display: block; color: var(--texto-suave); font-size: 0.85rem; }
-  code, .hash { font-family: ui-monospace, monospace; font-size: 0.82rem; overflow-wrap: anywhere; }
-  .vencedores { margin: 8px 0 0; padding-left: 28px; font-size: 1.15rem; }
-  .vencedores li { margin: 4px 0; }
-  .vencedores li span { color: var(--texto-suave); font-size: 0.85rem; }
-  .alerta { padding: 10px 12px; border-radius: 10px; background: rgba(var(--ouro-rgb), 0.12); border: 1px solid var(--borda); }
-</style>
+<link rel="stylesheet" href="estilo-paginas.css">
 </head>
 <body>
 <main>
@@ -231,8 +145,7 @@ $('btn-conferir').addEventListener('click', conferir);
 const doLink = new URLSearchParams(location.hash.slice(1)).get('lacre');
 if (doLink) {
   try {
-    const base64 = doLink.replace(/-/g, '+').replace(/_/g, '/');
-    $('lacre').value = new TextDecoder().decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)));
+    $('lacre').value = R.lacreDoLink(doLink);
     conferir();
   } catch {
     // link quebrado: a pessoa cola o lacre à mão

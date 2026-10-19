@@ -39,3 +39,25 @@ O resultado tem que ser idêntico ao arquivo do repositório:
 
 Para atualizar a versão, troque os números acima, gere de novo, rode
 `npm test` e atualize o hash neste arquivo, tudo no mesmo commit.
+
+## `qrcode.js`
+
+- **O que é:** a [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)
+  2.0.4, de Kazuhiko Arase, licença MIT (o aviso está no topo do arquivo).
+  Desenha o QR code do endereço público de um sorteio.
+- **Como é usado:** é o arquivo `dist/qrcode.js` do pacote, **sem nenhuma
+  alteração**. Ele pendura a função `qrcode` em `window`.
+
+### Como conferir
+
+```sh
+npm pack qrcode-generator@2.0.4
+tar xzf qrcode-generator-2.0.4.tgz
+sha256sum package/dist/qrcode.js
+```
+
+O resultado tem que ser:
+
+```
+79ec86f82856005b1c887905cfccfcfbec3821ca61c7fd5a952faa5f778f791c  package/dist/qrcode.js
+```

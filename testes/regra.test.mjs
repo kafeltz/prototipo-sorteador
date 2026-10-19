@@ -109,3 +109,11 @@ test('escrever o lacre confere os dados', () => {
   // título vazio vira "Sorteio"
   assert.match(R.escreverLacre({ ...base, titulo: '' }), /^Título: Sorteio$/m);
 });
+
+test('o lacre vai e volta de um link sem perder acento nem símbolo', () => {
+  for (const v of vetores) {
+    const codigo = R.lacreParaLink(v.lacre);
+    assert.match(codigo, /^[A-Za-z0-9_-]+$/); // nada que precise escapar num endereço
+    assert.equal(R.lacreDoLink(codigo), v.lacre);
+  }
+});
