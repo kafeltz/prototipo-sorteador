@@ -794,3 +794,65 @@ As capturas pegaram um defeito de layout na lista de vencedores do celular.
 > Faça primeiro a ferramenta de quem desconfia. E quando a receita diz "numa
 > pasta limpa", é numa pasta limpa: o atalho que parece igual é justamente o
 > que a conferência existe para pegar.
+
+---
+
+## Ato 16: O farol e a agenda no sorteador
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+O sorteador ganhou a opção **"Sorteio verificável"**. O caminho do
+organizador:
+
+1. Marca a opção, escolhe o título e o horário e clica em **Lacrar a lista**.
+2. A lista e as regras travam, e aparece o lacre, com um botão que abre o
+   **Google Agenda com o evento já preenchido**: título, horário e o lacre na
+   descrição. Falta só convidar as testemunhas e salvar. Nenhuma API, nenhum
+   login: é um link.
+3. A roda fica parada em **"AGUARDANDO O FAROL"**, com a contagem: *"Até lá,
+   ninguém sabe quem vai ganhar."*
+4. Na hora, o SORTEAR busca a rodada, confere a assinatura, calcula **todos** os
+   vencedores e anima um de cada vez: decidir primeiro, animar depois, como
+   sempre.
+
+Embaixo da roda, inclusive no modo apresentação, fica um **selo** com o
+começo da impressão digital (`🔒 Lacre 8184 a70a c2bf 93bf`), para quem
+assiste comparar com o convite que recebeu. O selo também vai para o
+histórico, para o texto copiado e para a imagem das redes.
+
+### As decisões que protegem o sorteio
+
+- **Horário no passado é recusado.** Se o número do farol já existisse, o
+  organizador poderia ver o resultado antes de lacrar.
+- **Farol fora do ar: nada é sorteado.** O status explica e o botão espera. O
+  modo verificável nunca cai em silêncio para o gerador do navegador.
+- **A roda confere a regra.** Antes de girar, o sorteador confere se o nome que
+  vai parar no ponteiro é o que a regra calculou. Se discordarem, o sorteio
+  para com um erro. Melhor parar a live do que mostrar um vencedor que o
+  conferidor não confirmaria.
+- **O lacre sobrevive a recarregar a página.** Navegador fechado no meio da
+  live não pode virar desculpa para lacrar de novo.
+- **Depois que a roda mostrou o primeiro vencedor, não dá para desfazer o
+  lacre.** E desfazer depois do horário pede uma confirmação que diz o óbvio:
+  *"vai parecer que você não gostou do resultado"*.
+
+### Como conferi
+
+Um teste no navegador fez o caminho inteiro com um lacre de 70 segundos:
+horário no passado recusado, campos travados, página recarregada no meio, a
+espera, os dois vencedores. Depois, **por fora do navegador**, só com o farol e
+a regra, a conta chegou aos mesmos dois nomes. Num segundo teste, os endereços
+do farol foram bloqueados na hora do sorteio: nada foi sorteado. Desbloqueados,
+o mesmo botão funcionou.
+
+As capturas pegaram mais um defeito de layout: com dois botões no histórico
+("Conferir" e "Imagem"), eles ficavam empilhados.
+
+### Lição
+
+> O caminho feliz é o menor pedaço do trabalho. O que torna um sorteio
+> confiável são as portas fechadas: horário no passado, farol fora do ar,
+> página recarregada, roda e regra discordando. Cada uma é uma linha de código
+> e uma trapaça a menos.

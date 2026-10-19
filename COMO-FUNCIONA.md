@@ -209,6 +209,14 @@ sequenceDiagram
 - **Quem confere usa o próprio navegador.** O conferidor busca o número no
   farol, confere a assinatura e refaz a conta sozinho, sem perguntar nada ao
   servidor do projeto.
+- **A roda confere a regra.** Antes de girar, o sorteador confere se o nome
+  que vai parar no ponteiro é o mesmo que a regra calculou. Se um dia
+  discordarem, o sorteio para com um erro, em vez de mostrar um vencedor que o
+  conferidor não confirmaria.
+
+**Onde está:** no `index.html`, a seção "SORTEIO VERIFICÁVEL" (`lacrar()`,
+`proximoDoFarol()`, `linkDaAgenda()`); a busca e a conferência da assinatura no
+`farol.js`; o conferidor no `conferir.html` e no `conferir.mjs`.
 
 ### O que isto NÃO protege
 
