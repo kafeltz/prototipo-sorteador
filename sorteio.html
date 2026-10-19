@@ -130,8 +130,13 @@ async function acompanhar() {
 
   // A conta foi feita aqui. O servidor também calcula; se ele discordar,
   // vale a conta deste aparelho, e o aviso fica bem visível.
+  // O servidor calcula logo depois da rodada; se ainda não terminou, espera
+  // um pouco e pergunta de novo, uma vez só
   let doServidor = null;
-  try { doServidor = (await (await fetch(`/api/sorteios/${codigo}`)).json()).resultado; } catch {}
+  for (let tentativa = 0; tentativa < 2 && !doServidor; tentativa++) {
+    if (tentativa) await new Promise((r) => setTimeout(r, 4000));
+    try { doServidor = (await (await fetch(`/api/sorteios/${codigo}`)).json()).resultado; } catch {}
+  }
   const nomes = (lista) => lista.map((v) => v.nome).join('\n');
   if (doServidor && nomes(doServidor.vencedores) !== nomes(conta.resultados)) {
     placar('⛔ O servidor deste site informa um resultado DIFERENTE da conta feita no seu aparelho. ' +
