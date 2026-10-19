@@ -617,3 +617,67 @@ sozinha, por horas, sem me pedir ok a cada passo.
 > os diagramas. Foi isso que permitiu retomar sem perder nada. E deixar a IA
 > trabalhar sozinha por horas só é seguro com as regras combinadas antes: o
 > ritmo, onde ela entrega e quando ela tem que parar.
+
+---
+
+## Ato 13: O vilão antes do código
+
+**Data:** 19/10/2026
+
+### O que eu pedi
+
+Tive uma ideia para o sorteio ser à prova de desconfiança: **testemunhas**. As
+pessoas leem um QR code, deixam o e-mail e, depois do sorteio, todas recebem a
+"semente", o número secreto que decidiu o resultado. Assim ninguém pode dizer
+que o sistema mentiu.
+
+### O furo
+
+A IA gostou da ideia, mas achou um furo antes de escrever qualquer código: se
+a semente chega **só depois**, a testemunha não sabe quantas sementes o
+organizador testou até achar uma que desse o resultado que ele queria. A
+semente chega certinha e não prova nada.
+
+Para achar furos assim, o primeiro passo foi escrever uma tabela: **quem pode
+trapacear, e como**. Sortear várias vezes, mexer na lista depois, inflar as
+chances com nomes repetidos, mostrar um sorteio e esconder outro. Para cada
+trapaça, o que impede. A tabela está no
+[`COMO-FUNCIONA.md`](COMO-FUNCIONA.md#4-o-sorteio-verificável-quem-pode-trapacear).
+
+### O conserto: o lacre e o farol
+
+- **Um lacre antes do sorteio.** Um texto com a lista, as regras e o horário,
+  entregue às testemunhas **antes** de o resultado existir.
+- **Um acaso que ninguém controla.** O número vem do farol público da issue
+  #4, numa rodada futura. Se a semente viesse do organizador, ele poderia
+  testar sementes antes de lacrar; se viesse das testemunhas, ele poderia
+  inventar testemunhas falsas no fim.
+
+### A minha ideia, a agenda
+
+Pensei em marcar o sorteio pelo **Google Agenda**: todo mundo que recebe o
+convite fica com algo que não dá mais para alterar. A ideia ficou, com um
+ajuste que vale a aula:
+
+- **O evento pode ser alterado; o e-mail do convite, não.** O organizador
+  edita o evento quando quiser, até sem avisar os convidados. Mas o e-mail que
+  chegou fica na caixa de cada um, **assinado pelo Google**. O lacre de verdade
+  é o e-mail.
+- **A agenda carrega o lacre, mas não gera o acaso.** Se o número saísse do
+  evento, o organizador poderia apagar e criar de novo até gostar.
+- **De brinde, zero integração.** O sorteador só precisa gerar o texto para
+  colar na descrição do evento. Nenhum login no Google, nenhum e-mail guardado
+  pelo projeto.
+
+### O limite
+
+Não dá para resolver tudo, e nem é o objetivo. O `COMO-FUNCIONA.md` ganhou uma
+seção **"O que isto NÃO protege"**: um conluio do organizador com todas as
+testemunhas, dois eventos escondidos, uma traição dentro do próprio farol e,
+principalmente, quem não confere.
+
+### Lição
+
+> Segurança começa perguntando quem é o vilão, antes do código. Uma ideia boa
+> com um furo vira uma ideia ótima quando alguém procura o furo cedo. E um
+> sistema honesto diz onde a proteção dele acaba.

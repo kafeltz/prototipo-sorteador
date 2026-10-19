@@ -135,6 +135,97 @@ sequenceDiagram
 
 ---
 
+## 4. O sorteio verificável: quem pode trapacear
+
+O sorteio dos itens 1 e 2 é justo, mas o público precisa **acreditar** nisso:
+o número nasce no computador do organizador e só ele o vê nascer. Nada impede
+que ele sorteie dez vezes e mostre só o resultado de que gostou. O sorteio
+verificável troca essa confiança por **conferência**: qualquer pessoa refaz a
+conta e chega ao mesmo vencedor.
+
+Antes de qualquer código, a pergunta foi: **quem pode trapacear, e como?**
+
+| Trapaça | O que impede |
+|---|---|
+| Sortear várias vezes até sair quem ele quer | O acaso vem de um **farol público**, num horário futuro anunciado antes. Ninguém conhece o número antes da hora, nem o organizador |
+| Escolher uma "semente" a dedo | Ninguém escolhe a semente: ela sai do número do farol |
+| Mexer na lista depois de ver o número | A lista vai no **lacre**, entregue às testemunhas antes do horário |
+| Inflar as chances com nomes repetidos | A lista inteira fica à vista no lacre, já sem os repetidos |
+| Mostrar um sorteio e esconder outro | O lacre é público e as testemunhas comparam o que receberam com o que veem na tela |
+| Alterar o lacre depois de enviado | O lacre que vale é o **e-mail** que chegou, e não um arquivo ou evento que dá para editar |
+| O nosso servidor mentir o número do farol | O farol **assina** cada número, e o navegador de quem confere verifica a assinatura |
+| O nosso código fazer a conta errada de propósito | A regra é pública e simples, e existe um conferidor independente que qualquer um pode rodar |
+
+### O lacre e o farol
+
+O **farol** é o [drand](https://drand.love), mantido pela League of Entropy,
+um grupo de organizações (a Cloudflare das lâmpadas de lava é uma delas). A
+cada 3 segundos ele publica uma **rodada**: um número aleatório numerado e
+assinado, que nunca muda depois de publicado. Cada horário corresponde a uma
+rodada, então "o sorteio das 20h30" já diz qual número vai ser usado.
+
+O **lacre** é um texto com tudo o que decide o resultado: a lista de
+participantes, as regras e o horário. Ele é entregue às testemunhas **antes**
+do horário. O jeito mais simples é colá-lo na descrição de um evento do Google
+Agenda e convidar as testemunhas.
+
+```mermaid
+sequenceDiagram
+    actor O as Organizador
+    participant S as Sorteador
+    participant A as Google Agenda
+    actor T as Testemunhas
+    participant F as Farol drand
+
+    O->>S: lista, regras e horário (20h30)
+    S-->>O: texto do lacre<br>e impressão digital
+    O->>A: cria o evento com o lacre<br>e convida as testemunhas
+    A->>T: e-mail de convite, assinado pelo Google
+    Note over T: O lacre está na caixa de entrada<br>ANTES do número existir.
+    Note over F: 20h30: publica a rodada,<br>com número e assinatura
+    S->>F: qual foi a rodada das 20h30?
+    F-->>S: número + assinatura
+    S->>S: confere a assinatura e calcula os vencedores
+    S->>O: a roda gira até o vencedor (decidir primeiro, animar depois)
+    T->>F: (depois) a mesma rodada
+    T->>T: cola o lacre no conferidor e chega ao mesmo vencedor
+```
+
+**As regras:**
+
+- **O lacre chega antes do número.** É isso que dá valor à prova. Quem recebeu
+  o lacre depois do horário continua podendo conferir a conta, mas não tem como
+  saber se a lista não foi trocada.
+- **O lacre que vale é o e-mail, não o evento.** O organizador pode editar o
+  evento na agenda, inclusive sem avisar os convidados. O e-mail de convite que
+  chegou não muda, e vem assinado pelo Google, que nem o organizador nem o
+  projeto conseguem falsificar.
+- **A agenda carrega o lacre, mas não gera o acaso.** Se o acaso viesse do
+  evento, o organizador poderia apagar e criar de novo até gostar do resultado.
+- **Farol fora do ar: o sorteio é adiado.** O modo verificável nunca troca o
+  farol pelo gerador do navegador sem avisar. Um sorteio "verificável" que
+  caiu em silêncio para o modo comum seria pior que nenhum.
+- **Quem confere usa o próprio navegador.** O conferidor busca o número no
+  farol, confere a assinatura e refaz a conta sozinho, sem perguntar nada ao
+  servidor do projeto.
+
+### O que isto NÃO protege
+
+Um sistema honesto diz onde a proteção acaba. Este não resolve:
+
+- **Um conluio do organizador com todas as testemunhas.** Se todo mundo que
+  recebeu o lacre combinar de mentir, não sobra ninguém para conferir.
+- **Dois eventos escondidos.** O organizador pode criar dois lacres para dois
+  grupos diferentes e mostrar o que convier. Mostrar o lacre na tela durante a
+  live diminui o risco, mas não elimina.
+- **O próprio farol.** Se a maioria das organizações que mantém o drand se
+  unir para trapacear, a garantia acaba. É uma aposta parecida com a que
+  fazemos todo dia no cadeado do HTTPS.
+- **Quem não confere.** Verificável não é o mesmo que verificado. A prova só
+  existe para quem lê o lacre e roda o conferidor.
+
+---
+
 ## Quando o código mudar
 
 Estes diagramas descrevem o código de 12/10/2026. Se uma dessas regras mudar,
