@@ -1072,3 +1072,79 @@ chegar ao código.
 > o seu modelo de ameaça: os furos mais perigosos estão onde a documentação
 > promete mais do que o código cumpre. E alguns ataques só se testam no
 > mundo real.
+
+---
+
+## Ato 21: No ar, e publicando sozinho
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+O servidor foi para a Cloudflare num **endereço de prévia**, e não no domínio
+oficial: a apresentação é amanhã, e o que vai ser mostrado não muda na
+véspera. O banco ganhou as tabelas, e a senha do organizador foi gerada por
+um programa, com 24 caracteres aleatórios, guardada num arquivo que só eu leio
+e enviada direto do arquivo para a Cloudflare. Ela não passou pela conversa
+com a IA nem por nenhuma linha de comando.
+
+Depois, a publicação virou **automática**: a cada merge na `main`, o GitHub
+roda os testes, aplica as mudanças do banco, **confere que não sobrou nenhuma
+pendente** (a lição do Ato 20 virou passo do fluxo), publica e roda um **teste
+de fumaça** no site no ar: está de pé, publica só o que deve, tem os
+cabeçalhos de segurança.
+
+### O que ficou para uma pessoa
+
+Para o GitHub publicar, ele precisa de uma chave de acesso à Cloudflare, e
+essa chave só o dono da conta deve criar, com o mínimo de permissões. O fluxo
+está pronto e, sem a chave, avisa e não faz nada. O passo a passo virou a
+[issue #9](https://github.com/kafeltz/prototipo-sorteador/issues/9). O que
+mais ficou para depois também virou issue, com o começo escrito para gente
+ler: o domínio oficial depois da apresentação (#10), tirar o JavaScript de
+dentro das páginas para endurecer a política de conteúdo (#11) e as
+testemunhas por e-mail, a ideia original (#12).
+
+### Lição
+
+> Automatize a sua própria lição: o erro que você cometeu uma vez à mão vira um
+> passo que a máquina confere sempre. E o que é ato humano (criar uma chave,
+> decidir o dia de trocar o domínio) fica escrito numa issue, com o passo a
+> passo, em vez de ser feito pela IA "porque dava".
+
+---
+
+## Ato 22: O ensaio geral
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Um sorteio verificável completo, **no endereço publicado**, do jeito que vai
+acontecer numa live:
+
+1. Lacrei a lista para dali a um minuto e publiquei (primeiro com a senha
+   errada, depois com a certa).
+2. O QR code apareceu na tela, e o teste o **leu de volta** da captura: o
+   endereço certo.
+3. Uma testemunha abriu a página no "celular" e viu a contagem: *"Ninguém sabe
+   quem vai ganhar, nem o organizador."*
+4. Na hora, a roda tirou três vencedores. A página da testemunha chegou aos
+   mesmos três, calculados no aparelho dela. O servidor também.
+5. Uma segunda testemunha recebeu do "servidor" um resultado falso. A página
+   dela mostrou o alerta vermelho e os três nomes certos.
+
+### A prova final: alguém de fora
+
+A issue #4 terminava com o critério de pronto: *"uma pessoa que não participou
+do desenvolvimento consegue, só com o lacre, refazer a conta e chegar ao mesmo
+vencedor"*. Para simular essa pessoa: um clone novo do repositório, direto do
+GitHub, sem nada desta máquina, e só o texto do lacre. `node conferir.mjs
+lacre.txt` chegou aos mesmos três nomes. E a implementação em Python, que não
+tem uma linha em comum com o JavaScript, também.
+
+### Lição
+
+> Ensaio geral é no lugar de verdade, com a senha de verdade, do jeito que vai
+> ser usado. E "pronto" tem que ter sido definido antes: a frase da issue #4
+> foi escrita uma semana atrás, e foi ela que disse quando parar.
