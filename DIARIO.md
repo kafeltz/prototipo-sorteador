@@ -681,3 +681,53 @@ principalmente, quem não confere.
 > Segurança começa perguntando quem é o vilão, antes do código. Uma ideia boa
 > com um furo vira uma ideia ótima quando alguém procura o furo cedo. E um
 > sistema honesto diz onde a proteção dele acaba.
+
+---
+
+## Ato 14: A regra vira um arquivo
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+A regra que decide quem ganha saiu do `index.html` e foi para um arquivo
+próprio, o `regra-do-sorteio.js`. O motivo: daqui para a frente, **quatro
+lugares** precisam fazer a mesma conta (o sorteador, o conferidor, o servidor
+e os testes). Se cada um tivesse a sua cópia, um dia elas iam discordar, e
+num sorteio verificável isso é fatal.
+
+O arquivo ganhou a regra do sorteio verificável, escrita em português antes do
+código, no [`COMO-FUNCIONA.md`](COMO-FUNCIONA.md#5-do-número-do-farol-aos-vencedores):
+
+- **O lacre é um texto para gente ler e máquina conferir.** Lista, regras,
+  horário e a rodada do farol que vai ser usada.
+- **A impressão digital é calculada sobre o lacre "passado a limpo".** Agendas
+  e e-mails estragam texto: trocam espaços, inserem linhas em branco,
+  escrevem o acento de outro jeito. O lacre é reescrito num formato oficial
+  antes da conta, então um lacre colado "sujo" de um convite dá a mesma
+  impressão digital. Uma letra trocada num nome, não.
+- **Do número do farol aos vencedores, só com SHA-256 e o mesmo descarte do
+  Ato 2.** Tudo vira texto antes, para qualquer linguagem conseguir repetir.
+
+### Como conferi
+
+- **Vetores de teste com rodadas reais do farol.** São casos fixos (lacre +
+  número → vencedores) que qualquer outra implementação pode usar para se
+  conferir.
+- **Uma segunda implementação, em Python**, escrita só a partir da descrição
+  da regra, sem olhar o JavaScript. As duas chegam aos mesmos vencedores nos
+  cinco vetores, inclusive no lacre "sujo". Se a regra só funcionasse no meu
+  código, ela não seria verificável.
+- **O modo rápido não mudou, e isso foi provado** como no Ato 9: capturas antes
+  e depois, 0 pixels diferentes, e um sorteio completo no navegador.
+- **Os testes rodam sozinhos no GitHub** a cada pull request.
+
+Um teste falhou na primeira vez: dizia que 2³² dividido por 17 deixa resto 6.
+Deixa 1. A conta errada era a do teste, não a do código. A lição do Ato 7
+continua valendo.
+
+### Lição
+
+> Código que vai ser auditado tem que dar sempre o mesmo resultado, e precisa
+> ser simples o bastante para outra pessoa reescrever do zero. A prova de que
+> uma regra é pública é alguém chegar à mesma resposta sem copiar o seu código.
