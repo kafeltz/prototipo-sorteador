@@ -107,6 +107,14 @@
       .trim();
   }
 
+  // "Ana Souza", "ana souza" e "Ána  Souza" são a mesma pessoa: sem acento,
+  // sem maiúscula e com um espaço só. O sorteador usa a mesma chave para
+  // avisar dos repetidos, e o lacre recusa repetidos: senão daria para
+  // inflar a chance de alguém escrevendo o nome dele duas vezes.
+  function chaveDoNome(nome) {
+    return limparTexto(nome).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
   // Data → "2026-10-20 20:30:00 -03:00", no fuso deste computador
   function formatarHorario(data) {
     const dois = (n) => String(n).padStart(2, '0');
@@ -127,6 +135,15 @@
     if (!data || Number.isNaN(data.getTime())) {
       throw new ErroNoLacre(`Horário inválido: "${texto}". O formato é 2026-10-20 20:30:00 -03:00.`);
     }
+    // O JavaScript "conserta" datas impossíveis sem avisar (30 de fevereiro
+    // vira 2 de março). Escrevendo a data de volta no mesmo fuso, a data
+    // impossível não volta igual, e é recusada.
+    const [, sinal, horas, minutos] = /([+-])(\d{2}):(\d{2})/.exec(partes[3]);
+    const deslocamentoMin = (sinal === '-' ? -1 : 1) * (Number(horas) * 60 + Number(minutos));
+    const noFuso = new Date(data.getTime() + deslocamentoMin * 60000).toISOString().slice(0, 19).replace('T', ' ');
+    if (noFuso !== `${partes[1]} ${partes[2]}` || Math.abs(deslocamentoMin) > 14 * 60) {
+      throw new ErroNoLacre(`Horário impossível: "${texto}".`);
+    }
     return data;
   }
 
@@ -144,12 +161,19 @@
     if (participantes.length > MAX_PARTICIPANTES) {
       throw new ErroNoLacre(`São ${participantes.length} participantes; o máximo é ${MAX_PARTICIPANTES}.`);
     }
+    const vistos = new Map();
     participantes.forEach((nome, i) => {
       if (!nome) throw new ErroNoLacre(`O participante nº ${i + 1} está sem nome.`);
       if (nome.length > MAX_TAMANHO_NOME) throw new ErroNoLacre(`O nome nº ${i + 1} passa de ${MAX_TAMANHO_NOME} letras.`);
+      const chave = chaveDoNome(nome);
+      if (vistos.has(chave)) {
+        throw new ErroNoLacre(`"${nome}" (nº ${i + 1}) repete o nº ${vistos.get(chave) + 1}. Cada pessoa entra uma vez só.`);
+      }
+      vistos.set(chave, i);
     });
-    if (!Number.isInteger(vencedores) || vencedores < 1) {
-      throw new ErroNoLacre('O número de vencedores precisa ser um inteiro maior que zero.');
+    // Com teto: vencedores demais travariam o navegador de quem confere
+    if (!Number.isInteger(vencedores) || vencedores < 1 || vencedores > MAX_PARTICIPANTES) {
+      throw new ErroNoLacre(`O número de vencedores precisa ser um inteiro de 1 a ${MAX_PARTICIPANTES}.`);
     }
     if (dados.semRepeticao && vencedores > participantes.length) {
       throw new ErroNoLacre(`Não dá para tirar ${vencedores} vencedores diferentes de ${participantes.length} participantes.`);
@@ -191,6 +215,9 @@
     if (semRepeticao === undefined) throw new ErroNoLacre('"Quem ganhou sai da roda" precisa ser "sim" ou "não".');
     if (!total) throw new ErroNoLacre('Esperava a linha "Participantes (N):".');
 
+    if (Number(total[1]) > MAX_PARTICIPANTES) {
+      throw new ErroNoLacre(`O lacre diz ${total[1]} participantes; o máximo é ${MAX_PARTICIPANTES}.`);
+    }
     const participantes = [];
     for (let i = 1; i <= Number(total[1]); i++) {
       const linha = linhas[inicio + 6 + i] || '';
@@ -200,6 +227,15 @@
       }
       participantes.push(linha.slice(prefixo.length));
     }
+
+    // Depois da lista, pode vir texto livre, mas nada que pareça mais um
+    // participante ou outro lacre: quem lesse o convite acharia que "4. Fulano"
+    // concorre, e a conta o ignoraria.
+    const depois = linhas.slice(inicio + 7 + participantes.length);
+    if (depois.some((linha) => /^\d+\.\s/.test(linha))) {
+      throw new ErroNoLacre(`Depois do nº ${participantes.length} vem outra linha numerada. O total de participantes está errado?`);
+    }
+    if (depois.includes(CABECALHO)) throw new ErroNoLacre('O texto tem dois lacres. Cole um de cada vez.');
 
     const dados = { titulo, horario, vencedores, semRepeticao, participantes };
     escreverLacre(dados); // confere todo o resto (vencedores, nomes, horário)
@@ -297,6 +333,7 @@
     inteiroAleatorio,
     sha256,
     hex,
+    chaveDoNome,
     rodadaDoHorario,
     horarioDaRodada,
     formatarHorario,

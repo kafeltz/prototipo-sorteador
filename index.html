@@ -685,11 +685,9 @@ function carregarHistorico() {
   }
 }
 
-// "Ana Souza", "ana souza" e "Ána  Souza" viram a mesma chave
-function chave(nome) {
-  return nome.normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/\s+/g, ' ').trim();
-}
+// "Ana Souza", "ana souza" e "Ána  Souza" viram a mesma chave. É a mesma
+// regra que o lacre usa para recusar repetidos (regra-do-sorteio.js).
+const chave = RegraDoSorteio.chaveDoNome;
 
 // Lê a caixa de texto e devolve [{ id, nome }]. Com a lista lacrada, quem
 // manda é o lacre: a roda precisa ter exatamente os nomes e a ordem dele.
