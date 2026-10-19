@@ -1,0 +1,22 @@
+[
+  {
+    "rodada": 33205709,
+    "aleatoriedade": "f43b811ecf99b48d05f36367d187656e25f35a965e31541e76c0234b426141df",
+    "assinatura": "a9482da63a6f5ff5692beb0d5b779f01723a8116491096c9832f776a77aa23b5d2db5480e13699aadc6276cc6ca6b403"
+  },
+  {
+    "rodada": 33000000,
+    "aleatoriedade": "3267554d34a7d7bbd3f547a168cda834dd94ca2f060386d48c49680ea9366cad",
+    "assinatura": "a6d9f863b58d8f1ea7b6fd426feef2b43b22c912b89dce0bdd787ed2b04c703954aced716aba98ff2b4a22a83e48dd35"
+  },
+  {
+    "rodada": 32000000,
+    "aleatoriedade": "ea1bdeb86e62a543551740bf792d78a296861de06a8bbd64b2b0e2134f40b166",
+    "assinatura": "b1c90cc3c290ae966b9b5230cd3c93389bd95ae0274f7dce8ef43979745fa747c72fbebe7ddafb79088120565d91b91f"
+  },
+  {
+    "rodada": 31000000,
+    "aleatoriedade": "b83329945edcd19e76cdc0f8c44afcac406df603247ef357b93924673da8f9a5",
+    "assinatura": "a43f1eab1da28f3f95220709d12a61cc0f1fed4a9ffe7cb4948e3bc3777de670e837501cdc70c903a6189c0639871985"
+  }
+]

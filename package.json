@@ -1,0 +1,9 @@
+{
+  "name": "sorteador-do-auditorio",
+  "private": true,
+  "description": "Sorteador web com clima de programa de auditório, justo e verificável",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test \"testes/*.test.mjs\""
+  }
+}

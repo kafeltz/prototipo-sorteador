@@ -503,24 +503,18 @@
 
 <canvas id="confete"></canvas>
 
+<!-- A regra do sorteio (quem ganha, sem viés) mora num arquivo à parte,
+     o mesmo que o conferidor e os testes usam. -->
+<script src="regra-do-sorteio.js"></script>
 <script>
 /* =====================================================================
    1. ALEATORIEDADE — a parte que precisa ser justa
    ===================================================================== */
 
-// Devolve um inteiro de 0 até max-1, com a mesma chance para cada um.
-// crypto.getRandomValues gera números de 32 bits (0 a 4.294.967.295).
-// Se fizermos só "numero % max", os restos menores aparecem um pouquinho
-// mais vezes (viés do módulo). Por isso descartamos o pedaço final que
-// não divide certinho e sorteamos de novo.
-function inteiroAleatorio(max) {
-  const limite = Math.floor(0x100000000 / max) * max;
-  const buffer = new Uint32Array(1);
-  do {
-    crypto.getRandomValues(buffer);
-  } while (buffer[0] >= limite);
-  return buffer[0] % max;
-}
+// Devolve um inteiro de 0 até max-1, com a mesma chance para cada um,
+// usando o gerador criptográfico do navegador e descartando o "pedaço que
+// sobra" (viés do módulo). A explicação está em regra-do-sorteio.js.
+const { inteiroAleatorio } = RegraDoSorteio;
 
 /* =====================================================================
    2. ESTADO E LEITURA DOS NOMES
