@@ -6,7 +6,7 @@ regras por baixo dos panos: as decisões que, se alguém mudar sem saber, quebra
 o sorteio ou a confiança nele.
 
 Cada diagrama abaixo mostra um processo, e logo depois vem **a regra** que ele
-ensina e **onde ela está** no `index.html`.
+ensina e **onde ela está** no código (`index.html` e `regra-do-sorteio.js`).
 
 ---
 
@@ -89,9 +89,10 @@ flowchart TD
 - **O laço quase nunca repete.** O pedaço descartado é muito pequeno perto de 4
   bilhões; na prática, o primeiro número quase sempre serve.
 
-**Onde está:** `inteiroAleatorio(max)`, com 8 linhas. O teste que confirmou a
-distribuição sorteou 1,7 milhão de vezes entre 17 nomes; cada um saiu entre
-99.309 e 100.559 vezes, para 100.000 esperadas.
+**Onde está:** `inteiroAleatorio(max)` e `limiteSemVies(max)`, no
+`regra-do-sorteio.js`. O teste que confirmou a distribuição sorteou 1,7 milhão
+de vezes entre 17 nomes; cada um saiu entre 99.309 e 100.559 vezes, para
+100.000 esperadas. Ele roda de novo a cada mudança (`npm test`).
 
 ---
 
@@ -208,6 +209,14 @@ sequenceDiagram
 - **Quem confere usa o próprio navegador.** O conferidor busca o número no
   farol, confere a assinatura e refaz a conta sozinho, sem perguntar nada ao
   servidor do projeto.
+- **A roda confere a regra.** Antes de girar, o sorteador confere se o nome
+  que vai parar no ponteiro é o mesmo que a regra calculou. Se um dia
+  discordarem, o sorteio para com um erro, em vez de mostrar um vencedor que o
+  conferidor não confirmaria.
+
+**Onde está:** no `index.html`, a seção "SORTEIO VERIFICÁVEL" (`lacrar()`,
+`proximoDoFarol()`, `linkDaAgenda()`); a busca e a conferência da assinatura no
+`farol.js`; o conferidor no `conferir.html` e no `conferir.mjs`.
 
 ### O que isto NÃO protege
 
@@ -226,7 +235,66 @@ Um sistema honesto diz onde a proteção acaba. Este não resolve:
 
 ---
 
+## 5. Do número do farol aos vencedores
+
+A regra é pública e cabe em poucas linhas, para que qualquer pessoa consiga
+repetir a conta em qualquer linguagem. Para provar isso, ela foi escrita duas
+vezes: em JavaScript (`regra-do-sorteio.js`) e em Python
+(`testes/segunda-implementacao.py`, escrita só a partir desta descrição). As
+duas chegam aos mesmos vencedores em todos os vetores de teste.
+
+```mermaid
+flowchart TD
+    L[Lacre colado do convite] --> N["Reescreve no formato oficial<br>(sem espaços e linhas a mais)"]
+    N --> I["impressão = SHA-256(lacre oficial)"]
+    F[Farol: número da rodada] --> S
+    I --> S["semente = SHA-256(número + ':' + impressão)"]
+    S --> B["fileira de números de 32 bits:<br>SHA-256(semente + ':0'), SHA-256(semente + ':1')…"]
+    B --> V{"número < limite sem viés<br>de quem está na roda?"}
+    V -- Não: descarta --> B
+    V -- Sim --> X["vencedor = nome na posição (número % quantos na roda)"]
+    X --> R{Faltam vencedores?}
+    R -- "Sim (e sai da roda, se a regra mandar)" --> B
+    R -- Não --> FIM([Vencedores, na ordem])
+```
+
+**A regra, passo a passo:**
+
+1. **O lacre no formato oficial.** Cada linha é limpa (acentos no padrão NFC,
+   sem caracteres invisíveis, espaços repetidos viram um só, sem espaço nas
+   pontas), as linhas vazias saem, e ficam só as linhas do cabeçalho
+   `SORTEIO VERIFICÁVEL (versão 1)` até o último participante, unidas por
+   quebra de linha. É por isso que um lacre copiado "sujo" de um convite dá a
+   mesma impressão digital.
+2. **Impressão digital:** SHA-256 do lacre oficial, em hexadecimal minúsculo.
+3. **Semente:** SHA-256 do texto `aleatoriedade:impressão`, em que
+   `aleatoriedade` é o campo `randomness` da rodada do farol, em hexadecimal.
+4. **Fileira de números:** SHA-256 de `semente:0` dá 32 bytes, lidos de 4 em 4
+   como números de 32 bits (big-endian); depois `semente:1`, e assim por
+   diante.
+5. **Cada vencedor:** com `n` nomes na roda, descarta os números a partir de
+   `⌊2³² / n⌋ × n` (o mesmo descarte do item 2) e usa `número % n` como
+   posição na roda. Se quem ganhou sai da roda, o nome é retirado e os outros
+   mantêm a ordem.
+
+**As regras:**
+
+- **Tudo vira texto antes do SHA-256.** Assim a conta não depende de detalhes
+  de uma linguagem, como a ordem dos bytes de um número.
+- **A impressão digital entra na semente.** O mesmo número do farol, com uma
+  lista diferente, dá vencedores diferentes: o resultado fica preso àquele
+  lacre.
+- **Mudou a regra, mudou a versão.** O cabeçalho diz `versão 1`. Qualquer
+  mudança nesta conta exige uma `versão 2`, senão os lacres antigos deixariam
+  de conferir.
+
+**Onde está:** `regra-do-sorteio.js` (`escreverLacre`, `lerLacre`,
+`impressaoDigital`, `semente`, `numerosDaSemente`, `sortearComSemente`). Os
+casos de teste estão em `testes/vetores.json`, com rodadas reais do drand.
+
+---
+
 ## Quando o código mudar
 
-Estes diagramas descrevem o código de 12/10/2026. Se uma dessas regras mudar,
+Estes diagramas descrevem o código de 19/10/2026. Se uma dessas regras mudar,
 o diagrama tem que mudar no mesmo commit; diagrama desatualizado ensina errado.

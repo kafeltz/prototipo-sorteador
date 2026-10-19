@@ -1,0 +1,64 @@
+[
+  {
+    "descricao": "Três participantes, um vencedor",
+    "lacre": "SORTEIO VERIFICÁVEL (versão 1)\nTítulo: Sorteio do Auditório\nHorário: 2026-10-19 11:34:51 -03:00\nFarol: drand quicknet, rodada 33205709\nVencedores: 1\nQuem ganhou sai da roda: sim\nParticipantes (3):\n1. Ana Souza\n2. Bruno Lima\n3. Carla Mendes",
+    "aleatoriedade": "f43b811ecf99b48d05f36367d187656e25f35a965e31541e76c0234b426141df",
+    "impressao": "57fc7e75cd91ce443f06b3c570a1075bdf3af68131527135403ae5ad1218886f",
+    "semente": "2a73ee1b0c31925fba7d78dc9a367b67e6009286b4e70c058a61da74e5d7890c",
+    "vencedores": [
+      "Ana Souza"
+    ]
+  },
+  {
+    "descricao": "Os 17 nomes de exemplo, três vencedores, quem ganhou sai da roda",
+    "lacre": "SORTEIO VERIFICÁVEL (versão 1)\nTítulo: Live de terça\nHorário: 2026-10-12 08:09:24 -03:00\nFarol: drand quicknet, rodada 33000000\nVencedores: 3\nQuem ganhou sai da roda: sim\nParticipantes (17):\n1. Ana Souza\n2. Bruno Lima\n3. Carla Mendes\n4. Diego Rocha\n5. Eduarda Alves\n6. Felipe Castro\n7. Gabriela Nunes\n8. Henrique Dias\n9. Isabela Martins\n10. João Pedro\n11. Karina Lopes\n12. Lucas Ferreira\n13. Mariana Costa\n14. Nicolas Ribeiro\n15. Olívia Santos\n16. Paulo Henrique\n17. Rafaela Gomes",
+    "aleatoriedade": "3267554d34a7d7bbd3f547a168cda834dd94ca2f060386d48c49680ea9366cad",
+    "impressao": "62933596d93d01ff0475b3df6b1b3145b87783b529b49e2d396ccdadcdd86dfa",
+    "semente": "15d426737262541e4e725a49aa23735083ced893bb9c9a418cdb4b3d28f31b88",
+    "vencedores": [
+      "Bruno Lima",
+      "Paulo Henrique",
+      "Eduarda Alves"
+    ]
+  },
+  {
+    "descricao": "Cinco nomes, quatro vencedores, pode repetir",
+    "lacre": "SORTEIO VERIFICÁVEL (versão 1)\nTítulo: Rifa da firma\nHorário: 2026-09-07 14:49:24 -03:00\nFarol: drand quicknet, rodada 32000000\nVencedores: 4\nQuem ganhou sai da roda: não\nParticipantes (5):\n1. Felipe Castro\n2. Gabriela Nunes\n3. Henrique Dias\n4. Isabela Martins\n5. João Pedro",
+    "aleatoriedade": "ea1bdeb86e62a543551740bf792d78a296861de06a8bbd64b2b0e2134f40b166",
+    "impressao": "ed9c7f59fc60718ffc8769911593d9ef9a0b1322fb59f0666c9c2fa77a19f758",
+    "semente": "93701e3a8587da2faea36107423338f08c527c0482ad31e196080fe9d36aa894",
+    "vencedores": [
+      "João Pedro",
+      "Henrique Dias",
+      "Felipe Castro",
+      "Felipe Castro"
+    ]
+  },
+  {
+    "descricao": "Todos ganham: a ordem é o sorteio",
+    "lacre": "SORTEIO VERIFICÁVEL (versão 1)\nTítulo: Ordem de apresentação\nHorário: 2026-08-03 21:29:24 -03:00\nFarol: drand quicknet, rodada 31000000\nVencedores: 6\nQuem ganhou sai da roda: sim\nParticipantes (6):\n1. Ana Souza\n2. Bruno Lima\n3. Carla Mendes\n4. Diego Rocha\n5. Eduarda Alves\n6. Felipe Castro",
+    "aleatoriedade": "b83329945edcd19e76cdc0f8c44afcac406df603247ef357b93924673da8f9a5",
+    "impressao": "9ca37287903606481ad136e348332d836deb27ce032f914ba05f162f8fbfbf15",
+    "semente": "0084ba69ab3adb45331c1b821a26dbf1d4a306c1eba7406f6bb864d1be804749",
+    "vencedores": [
+      "Bruno Lima",
+      "Eduarda Alves",
+      "Ana Souza",
+      "Felipe Castro",
+      "Diego Rocha",
+      "Carla Mendes"
+    ]
+  },
+  {
+    "descricao": "O mesmo lacre do 2º vetor, colado \"sujo\" de um convite",
+    "lacre": "Oi, pessoal! Segue o lacre do sorteio:\r\n\r\nSORTEIO VERIFICÁVEL (versão 1)\r\n\r\nTítulo: Live de terça\r\n\r\nHorário: 2026-10-12 08:09:24 -03:00\r\n\r\nFarol: drand quicknet, rodada 33000000\r\n\r\nVencedores: 3\r\n\r\nQuem ganhou sai da roda: sim\r\n\r\nParticipantes (17):\r\n\r\n1. Ana  Souza \r\n\r\n2. Bruno Lima\r\n\r\n3. Carla Mendes\r\n\r\n4. Diego Rocha\r\n\r\n5. Eduarda Alves\r\n\r\n6. Felipe Castro\r\n\r\n7. Gabriela Nunes\r\n\r\n8. Henrique Dias\r\n\r\n9. Isabela Martins\r\n\r\n10. João Pedro\r\n\r\n11. Karina Lopes\r\n\r\n12. Lucas Ferreira\r\n\r\n13. Mariana Costa\r\n\r\n14. Nicolas Ribeiro\r\n\r\n15. Olívia Santos\r\n\r\n16. Paulo Henrique\r\n\r\n17. Rafaela Gomes\r\n\r\nPara conferir: https://exemplo/conferir.html",
+    "aleatoriedade": "3267554d34a7d7bbd3f547a168cda834dd94ca2f060386d48c49680ea9366cad",
+    "impressao": "62933596d93d01ff0475b3df6b1b3145b87783b529b49e2d396ccdadcdd86dfa",
+    "semente": "15d426737262541e4e725a49aa23735083ced893bb9c9a418cdb4b3d28f31b88",
+    "vencedores": [
+      "Bruno Lima",
+      "Paulo Henrique",
+      "Eduarda Alves"
+    ]
+  }
+]

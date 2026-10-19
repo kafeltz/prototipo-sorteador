@@ -681,3 +681,178 @@ principalmente, quem não confere.
 > Segurança começa perguntando quem é o vilão, antes do código. Uma ideia boa
 > com um furo vira uma ideia ótima quando alguém procura o furo cedo. E um
 > sistema honesto diz onde a proteção dele acaba.
+
+---
+
+## Ato 14: A regra vira um arquivo
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+A regra que decide quem ganha saiu do `index.html` e foi para um arquivo
+próprio, o `regra-do-sorteio.js`. O motivo: daqui para a frente, **quatro
+lugares** precisam fazer a mesma conta (o sorteador, o conferidor, o servidor
+e os testes). Se cada um tivesse a sua cópia, um dia elas iam discordar, e
+num sorteio verificável isso é fatal.
+
+O arquivo ganhou a regra do sorteio verificável, escrita em português antes do
+código, no [`COMO-FUNCIONA.md`](COMO-FUNCIONA.md#5-do-número-do-farol-aos-vencedores):
+
+- **O lacre é um texto para gente ler e máquina conferir.** Lista, regras,
+  horário e a rodada do farol que vai ser usada.
+- **A impressão digital é calculada sobre o lacre "passado a limpo".** Agendas
+  e e-mails estragam texto: trocam espaços, inserem linhas em branco,
+  escrevem o acento de outro jeito. O lacre é reescrito num formato oficial
+  antes da conta, então um lacre colado "sujo" de um convite dá a mesma
+  impressão digital. Uma letra trocada num nome, não.
+- **Do número do farol aos vencedores, só com SHA-256 e o mesmo descarte do
+  Ato 2.** Tudo vira texto antes, para qualquer linguagem conseguir repetir.
+
+### Como conferi
+
+- **Vetores de teste com rodadas reais do farol.** São casos fixos (lacre +
+  número → vencedores) que qualquer outra implementação pode usar para se
+  conferir.
+- **Uma segunda implementação, em Python**, escrita só a partir da descrição
+  da regra, sem olhar o JavaScript. As duas chegam aos mesmos vencedores nos
+  cinco vetores, inclusive no lacre "sujo". Se a regra só funcionasse no meu
+  código, ela não seria verificável.
+- **O modo rápido não mudou, e isso foi provado** como no Ato 9: capturas antes
+  e depois, 0 pixels diferentes, e um sorteio completo no navegador.
+- **Os testes rodam sozinhos no GitHub** a cada pull request.
+
+Um teste falhou na primeira vez: dizia que 2³² dividido por 17 deixa resto 6.
+Deixa 1. A conta errada era a do teste, não a do código. A lição do Ato 7
+continua valendo.
+
+### Lição
+
+> Código que vai ser auditado tem que dar sempre o mesmo resultado, e precisa
+> ser simples o bastante para outra pessoa reescrever do zero. A prova de que
+> uma regra é pública é alguém chegar à mesma resposta sem copiar o seu código.
+
+---
+
+## Ato 15: O conferidor antes da funcionalidade
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+Antes de colocar o sorteio verificável no sorteador, veio **o lado de quem
+confere**. Se ninguém consegue conferir, "verificável" é só propaganda.
+
+- **`conferir.html`:** a testemunha cola o lacre que recebeu (pode ser com o
+  texto do convite em volta) e a página mostra, passo a passo, o que foi
+  conferido: o lacre, a rodada do farol com a assinatura, a semente e os
+  vencedores. Se a rodada ainda não saiu, mostra quanto falta e confere
+  sozinha na hora.
+- **`conferir.mjs`:** a mesma coisa pelo terminal, para quem não quer confiar
+  nem na página.
+- **`farol.js`:** busca a rodada em quatro endereços do drand. Um fora do ar,
+  tenta o próximo. Mas um entregando número com assinatura falsa **para tudo**:
+  isso não é "instabilidade", é ataque.
+
+### A assinatura é conferida em quem olha
+
+O farol assina cada rodada com uma chave que só a League of Entropy tem. Quem
+confere usa a chave pública, gravada no código, e a conta acontece **no
+aparelho da testemunha**. Não importa quem entregou o número, nem se foi o
+nosso servidor: número com assinatura errada é recusado.
+
+### A primeira dependência
+
+Conferir assinaturas desse tipo exige matemática de curvas elípticas, e
+escrever isso à mão é pedir para errar. Entrou a primeira biblioteca de
+terceiros do projeto, a `@noble/curves`, que é auditada e não tem
+dependências. Duas decisões:
+
+- **Um arquivo copiado para dentro do repositório**, e não um link para um
+  CDN. O sorteador continua abrindo com dois cliques, e o que foi revisado é o
+  que roda: um arquivo no repositório não muda de um dia para o outro.
+- **Com receita e conferência.** O `vendor/README.md` diz exatamente como gerar
+  o arquivo de novo e qual tem que ser o hash dele.
+
+E a receita foi testada de verdade. Na primeira tentativa, o hash deu
+diferente. O motivo: eu tinha pegado um atalho (reaproveitar uma pasta de
+dependências por um link), e o empacotador escreve o caminho dos arquivos
+dentro do resultado. Seguindo a receita à risca, numa pasta limpa, o hash
+bateu.
+
+### Como conferi
+
+Testes sem internet, com rodadas reais gravadas e um farol "de mentira" que
+cai, demora, responde a rodada errada ou entrega um número forjado. No
+navegador: um lacre real colado sujo, um lacre de 20 segundos no futuro (a
+página esperou e conferiu sozinha), um lacre quebrado e um participante
+chamado `<b>Duda</b>`, que tem que aparecer como texto, e não virar negrito.
+As capturas pegaram um defeito de layout na lista de vencedores do celular.
+
+### Lição
+
+> Faça primeiro a ferramenta de quem desconfia. E quando a receita diz "numa
+> pasta limpa", é numa pasta limpa: o atalho que parece igual é justamente o
+> que a conferência existe para pegar.
+
+---
+
+## Ato 16: O farol e a agenda no sorteador
+
+**Data:** 19/10/2026
+
+### O que foi feito
+
+O sorteador ganhou a opção **"Sorteio verificável"**. O caminho do
+organizador:
+
+1. Marca a opção, escolhe o título e o horário e clica em **Lacrar a lista**.
+2. A lista e as regras travam, e aparece o lacre, com um botão que abre o
+   **Google Agenda com o evento já preenchido**: título, horário e o lacre na
+   descrição. Falta só convidar as testemunhas e salvar. Nenhuma API, nenhum
+   login: é um link.
+3. A roda fica parada em **"AGUARDANDO O FAROL"**, com a contagem: *"Até lá,
+   ninguém sabe quem vai ganhar."*
+4. Na hora, o SORTEAR busca a rodada, confere a assinatura, calcula **todos** os
+   vencedores e anima um de cada vez: decidir primeiro, animar depois, como
+   sempre.
+
+Embaixo da roda, inclusive no modo apresentação, fica um **selo** com o
+começo da impressão digital (`🔒 Lacre 8184 a70a c2bf 93bf`), para quem
+assiste comparar com o convite que recebeu. O selo também vai para o
+histórico, para o texto copiado e para a imagem das redes.
+
+### As decisões que protegem o sorteio
+
+- **Horário no passado é recusado.** Se o número do farol já existisse, o
+  organizador poderia ver o resultado antes de lacrar.
+- **Farol fora do ar: nada é sorteado.** O status explica e o botão espera. O
+  modo verificável nunca cai em silêncio para o gerador do navegador.
+- **A roda confere a regra.** Antes de girar, o sorteador confere se o nome que
+  vai parar no ponteiro é o que a regra calculou. Se discordarem, o sorteio
+  para com um erro. Melhor parar a live do que mostrar um vencedor que o
+  conferidor não confirmaria.
+- **O lacre sobrevive a recarregar a página.** Navegador fechado no meio da
+  live não pode virar desculpa para lacrar de novo.
+- **Depois que a roda mostrou o primeiro vencedor, não dá para desfazer o
+  lacre.** E desfazer depois do horário pede uma confirmação que diz o óbvio:
+  *"vai parecer que você não gostou do resultado"*.
+
+### Como conferi
+
+Um teste no navegador fez o caminho inteiro com um lacre de 70 segundos:
+horário no passado recusado, campos travados, página recarregada no meio, a
+espera, os dois vencedores. Depois, **por fora do navegador**, só com o farol e
+a regra, a conta chegou aos mesmos dois nomes. Num segundo teste, os endereços
+do farol foram bloqueados na hora do sorteio: nada foi sorteado. Desbloqueados,
+o mesmo botão funcionou.
+
+As capturas pegaram mais um defeito de layout: com dois botões no histórico
+("Conferir" e "Imagem"), eles ficavam empilhados.
+
+### Lição
+
+> O caminho feliz é o menor pedaço do trabalho. O que torna um sorteio
+> confiável são as portas fechadas: horário no passado, farol fora do ar,
+> página recarregada, roda e regra discordando. Cada uma é uma linha de código
+> e uma trapaça a menos.

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conferir um sorteio · Sorteador do Auditório</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* As mesmas cores do tema Clássico do sorteador */
+  :root {
+    --palco: #12062e;
+    --palco-2: #2e0f66;
+    --ouro: #ffc93c;
+    --ouro-rgb: 255, 201, 60;
+    --texto: #fff8e7;
+    --texto-suave: #cbbcf0;
+    --painel: rgba(255, 255, 255, 0.06);
+    --borda: rgba(var(--ouro-rgb), 0.35);
+    --ok: #5ee08a;
+    --erro: #ff7a85;
+    --titulo: 'Bungee', 'Arial Black', system-ui, sans-serif;
+    --fonte: 'Nunito', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    color: var(--texto);
+    font-family: var(--fonte);
+    line-height: 1.5;
+    background: radial-gradient(ellipse at 50% 120%, var(--palco-2), var(--palco) 70%) fixed var(--palco);
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 {
+    margin: 0 0 4px;
+    font-family: var(--titulo);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 6vw, 2.4rem);
+    color: var(--ouro);
+    text-shadow: 0 3px 0 #a0331f;
+  }
+  h2 { margin: 0 0 8px; font-size: 1.05rem; color: var(--ouro); }
+  a { color: var(--ouro); }
+  p { margin: 0 0 12px; }
+  .suave { color: var(--texto-suave); }
+  .painel {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid var(--borda);
+    border-radius: 16px;
+    background: var(--painel);
+  }
+  textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 12px;
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--texto);
+    font: 0.9rem/1.4 ui-monospace, monospace;
+    resize: vertical;
+  }
+  button {
+    margin-top: 12px;
+    padding: 12px 28px;
+    border: 3px solid #fff3b0;
+    border-radius: 999px;
+    background: linear-gradient(#ff5a5f, #c1121f);
+    color: #fff;
+    font: 400 1.1rem var(--titulo);
+    cursor: pointer;
+    box-shadow: 0 5px 0 #7a0a12;
+  }
+  button:focus-visible { outline: 3px solid var(--ouro); outline-offset: 3px; }
+  ol.passos { margin: 0; padding: 0; list-style: none; }
+  .passos > li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 8px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .passos > li:first-child { border-top: 0; }
+  .icone { font-size: 1.2rem; line-height: 1.4; }
+  .ok .icone { color: var(--ok); }
+  .erro .icone { color: var(--erro); }
+  .detalhe { display: block; color: var(--texto-suave); font-size: 0.85rem; }
+  code, .hash { font-family: ui-monospace, monospace; font-size: 0.82rem; overflow-wrap: anywhere; }
+  .vencedores { margin: 8px 0 0; padding-left: 28px; font-size: 1.15rem; }
+  .vencedores li { margin: 4px 0; }
+  .vencedores li span { color: var(--texto-suave); font-size: 0.85rem; }
+  .alerta { padding: 10px 12px; border-radius: 10px; background: rgba(var(--ouro-rgb), 0.12); border: 1px solid var(--borda); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Conferir um sorteio</h1>
+  <p class="suave">Refaça a conta de um sorteio verificável, aqui no seu navegador. O número
+    vem direto do farol público <a href="https://drand.love" target="_blank" rel="noopener">drand</a>
+    e a assinatura dele é conferida neste aparelho: você não precisa confiar no organizador,
+    nem neste site.</p>
+
+  <section class="painel">
+    <h2><label for="lacre">1. Cole o lacre que você recebeu</label></h2>
+    <p class="suave">Ele começa com <code>SORTEIO VERIFICÁVEL (versão 1)</code> e costuma vir no
+      convite da agenda. Pode colar com o texto em volta: o que não for lacre é ignorado.</p>
+    <textarea id="lacre" spellcheck="false"></textarea>
+    <button type="button" id="btn-conferir">Conferir</button>
+  </section>
+
+  <section class="painel" id="painel-resultado" hidden aria-live="polite">
+    <h2>2. O que foi conferido</h2>
+    <ol class="passos" id="passos"></ol>
+  </section>
+
+  <section class="painel">
+    <h2>Sem confiar nem neste site</h2>
+    <p>A conta é pública e está explicada passo a passo no
+      <a href="https://github.com/kafeltz/prototipo-sorteador/blob/main/COMO-FUNCIONA.md#5-do-número-do-farol-aos-vencedores" target="_blank" rel="noopener">COMO-FUNCIONA.md</a>.
+      Quem preferir pode baixar o <a href="https://github.com/kafeltz/prototipo-sorteador" target="_blank" rel="noopener">código</a>
+      e conferir pelo terminal: <code>node conferir.mjs lacre.txt</code>.</p>
+  </section>
+</main>
+
+<script src="regra-do-sorteio.js"></script>
+<script src="vendor/noble-bls.js"></script>
+<script src="farol.js"></script>
+<script>
+const { RegraDoSorteio: R, Farol } = window;
+const $ = (id) => document.getElementById(id);
+
+// Um passo da lista: ícone, título e um detalhe opcional. Tudo com
+// textContent: um nome no lacre nunca é interpretado como HTML.
+function passo(tipo, titulo, detalhe, classeDetalhe = 'detalhe') {
+  const li = document.createElement('li');
+  li.className = tipo;
+  const icone = document.createElement('span');
+  icone.className = 'icone';
+  icone.textContent = { ok: '✓', erro: '✗', aviso: '⚠', espera: '⏳' }[tipo];
+  const corpo = document.createElement('div');
+  corpo.append(titulo);
+  if (detalhe) {
+    const d = document.createElement('span');
+    d.className = classeDetalhe;
+    d.textContent = detalhe;
+    corpo.append(d);
+  }
+  li.append(icone, corpo);
+  $('passos').append(li);
+  return li;
+}
+
+let espera = null; // contagem até a rodada sair
+
+async function conferir() {
+  clearInterval(espera);
+  $('passos').replaceChildren();
+  $('painel-resultado').hidden = false;
+
+  let dados;
+  try {
+    dados = R.lerLacre($('lacre').value);
+  } catch (erro) {
+    if (!(erro instanceof R.ErroNoLacre)) throw erro;
+    passo('erro', 'O lacre não pôde ser lido.', erro.message);
+    return;
+  }
+
+  const impressao = await R.impressaoDigital(dados);
+  const horario = R.lerHorario(dados.horario);
+  passo('ok', `Lacre lido: "${dados.titulo}", ${dados.participantes.length} participantes, ` +
+    `${dados.vencedores} vencedor${dados.vencedores > 1 ? 'es' : ''}` +
+    `${dados.semRepeticao ? '' : ', podendo repetir'}.`, `Impressão digital: ${impressao}`, 'detalhe hash');
+  passo('aviso', `Este lacre só prova algo se chegou até você antes de ${horario.toLocaleString('pt-BR')}.`,
+    'Confira a hora em que o convite chegou na sua caixa de entrada. Se chegou depois, a conta abaixo ' +
+    'continua certa, mas não dá para saber se a lista foi trocada.');
+
+  const linhaFarol = passo('espera', `Buscando a rodada ${dados.rodada} do farol…`);
+  let rodada;
+  try {
+    rodada = await Farol.buscarRodada(dados.rodada);
+  } catch (erro) {
+    if (!(erro instanceof Farol.ErroDoFarol)) throw erro;
+    linhaFarol.remove();
+    if (erro.motivo === 'ainda-nao-saiu') esperarRodada(dados.rodada);
+    else passo('erro', erro.message);
+    return;
+  }
+  linhaFarol.remove();
+  passo('ok', `Rodada ${rodada.rodada} do farol, com a assinatura conferida neste aparelho.`,
+    `Número: ${rodada.aleatoriedade} (de ${rodada.endereco})`, 'detalhe hash');
+
+  const { semente, resultados } = await R.sortearLacre(dados, rodada.aleatoriedade);
+  const li = passo('ok', `Resultado (semente ${semente.slice(0, 16)}…):`);
+  const lista = document.createElement('ol');
+  lista.className = 'vencedores';
+  for (const r of resultados) {
+    const item = document.createElement('li');
+    const nome = document.createElement('strong');
+    nome.textContent = r.nome;
+    const prova = document.createElement('span');
+    prova.textContent = ` · nº ${r.indice + 1} de ${r.totalNaRoda} na roda`;
+    item.append(nome, prova);
+    lista.append(item);
+  }
+  li.lastChild.append(lista);
+}
+
+// A rodada ainda não saiu: mostra quanto falta e confere sozinho na hora
+function esperarRodada(numero) {
+  const sai = R.horarioDaRodada(numero).getTime();
+  const linha = passo('espera', '', 'O resultado ainda não existe: nem o organizador sabe quem vai ganhar.');
+  const atualizar = () => {
+    const faltam = Math.max(0, Math.ceil((sai - Date.now()) / 1000));
+    const min = Math.floor(faltam / 60), seg = String(faltam % 60).padStart(2, '0');
+    linha.lastChild.firstChild.textContent = `A rodada ${numero} do farol sai em ${min}:${seg}. Esta página confere sozinha na hora.`;
+    if (faltam === 0) { clearInterval(espera); setTimeout(conferir, 2500); }
+  };
+  atualizar();
+  espera = setInterval(atualizar, 1000);
+}
+
+$('btn-conferir').addEventListener('click', conferir);
+
+// Link com o lacre embutido (conferir.html#lacre=...): já confere ao abrir.
+// O que vem depois do "#" fica no navegador; nunca vai para servidor nenhum.
+const doLink = new URLSearchParams(location.hash.slice(1)).get('lacre');
+if (doLink) {
+  try {
+    const base64 = doLink.replace(/-/g, '+').replace(/_/g, '/');
+    $('lacre').value = new TextDecoder().decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)));
+    conferir();
+  } catch {
+    // link quebrado: a pessoa cola o lacre à mão
+  }
+}
+</script>
+</body>
+</html>

@@ -236,7 +236,7 @@
   label.check { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   .dica { font-size: 0.85rem; color: var(--texto-suave); }
 
-  textarea, input[type=number], select {
+  textarea, input[type=number], input[type=text], input[type=datetime-local], select {
     width: 100%;
     margin-top: 6px;
     padding: 10px;
@@ -318,11 +318,53 @@
   .btn-grande:hover:not(:disabled) { background: linear-gradient(var(--botao-hover-topo), var(--botao-hover-base)); }
   .btn-grande:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--botao-degrau); }
   #status { margin: 0; color: var(--texto-suave); font-weight: 700; text-align: center; }
+  input:disabled, textarea:read-only { opacity: 0.6; }
+  #dialogo-lacre textarea:read-only { opacity: 1; }
+
+  /* Selo do lacre embaixo da roda: o público compara com o convite */
+  .selo {
+    margin: 0;
+    padding: 6px 14px;
+    border: 1px dashed var(--borda);
+    border-radius: 999px;
+    color: var(--texto-suave);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .selo code { color: var(--ouro); font-size: 1rem; }
+
+  /* ---------- Diálogo do lacre ---------- */
+  dialog {
+    width: min(640px, calc(100vw - 32px));
+    padding: 22px;
+    border: 2px solid var(--ouro);
+    border-radius: 18px;
+    background: var(--palco);
+    color: var(--texto);
+    font-family: var(--fonte);
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+  dialog h2 { margin: 0 0 10px; font-family: var(--titulo); font-weight: 400; color: var(--ouro); text-transform: var(--titulo-maiusculas); }
+  dialog textarea { min-height: 260px; font: 0.85rem/1.4 ui-monospace, monospace; }
+  dialog code { font-size: 0.8rem; overflow-wrap: anywhere; }
+  .acoes-dialogo { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  .botao {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid var(--ouro);
+    border-radius: 10px;
+    background: rgba(var(--ouro-rgb), 0.18);
+    color: var(--texto);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .botao[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
 
   /* ---------- Resultados ---------- */
   .sorteio h3 { margin: 14px 0 6px; font-size: 0.9rem; color: var(--texto-suave); }
   .sorteio .linha { flex-wrap: nowrap; margin: 14px 0 6px; }
   .sorteio .linha h3 { margin: 0; }
+  .sorteio .linha > span { display: flex; gap: 6px; flex-shrink: 0; }
   .sorteio ol { margin: 0; padding-left: 22px; }
   .sorteio li { margin: 6px 0; }
   .sorteio li strong { font-size: 1.05rem; }
@@ -445,6 +487,23 @@
     <input type="range" id="duracao" min="3" max="15" value="6">
     <label class="check"><input type="checkbox" id="som" checked> Som ligado</label>
 
+    <h2>Sorteio verificável</h2>
+    <label class="check"><input type="checkbox" id="verificavel"> Usar o farol público, para o público poder conferir</label>
+    <div id="opcoes-verificavel" hidden>
+      <label>Título <input type="text" id="titulo" value="Sorteio do Auditório" maxlength="120"></label>
+      <label>Horário do sorteio <input type="datetime-local" id="horario"></label>
+      <p class="dica">Dê tempo para o convite chegar às testemunhas: 10 minutos ou mais.</p>
+      <button type="button" id="btn-lacrar">🔒 Lacrar a lista</button>
+      <div id="aviso-lacre" class="aviso" hidden></div>
+    </div>
+    <div id="lacrado" class="aviso" hidden>
+      <p id="lacrado-texto" style="margin:0 0 8px"></p>
+      <span class="botoes-pequenos">
+        <button type="button" id="btn-ver-lacre">Ver lacre</button>
+        <button type="button" id="btn-desfazer-lacre">Desfazer</button>
+      </span>
+    </div>
+
     <h2>Visual</h2>
     <label>Tema
       <select id="tema">
@@ -465,6 +524,7 @@
       <button type="button" id="btn-sortear" class="btn-grande">SORTEAR!</button>
     </div>
     <p id="status" aria-live="polite"></p>
+    <p id="selo-lacre" class="selo" hidden></p>
     <button type="button" id="btn-apresentacao">⛶ Modo apresentação</button>
   </section>
 
@@ -485,6 +545,7 @@
       <p><strong>2. Usamos o gerador criptográfico do navegador</strong> (<code>crypto.getRandomValues</code>), o mesmo tipo de fonte de aleatoriedade usada para proteger conexões HTTPS, e não o <code>Math.random</code>, que é previsível.</p>
       <p><strong>3. Sem viés.</strong> Um truque ingênuo (<code>número % total</code>) favorece levemente os primeiros da lista. Aqui descartamos os números que causariam esse viés e sorteamos de novo.</p>
       <p><strong>4. Comprovante.</strong> Cada resultado mostra o número sorteado, o total de nomes na roda e o horário.</p>
+      <p><strong>5. Sorteio verificável (opcional).</strong> A lista é lacrada e enviada às testemunhas antes do sorteio, e o acaso vem de um farol público, o <a href="https://drand.love" target="_blank" rel="noopener">drand</a>, num horário marcado. Ninguém conhece o número antes, nem o organizador, e qualquer pessoa refaz a conta no <a href="conferir.html">conferidor</a>.</p>
       <p>Curiosidade: a Cloudflare usa uma parede de <a href="https://www.cloudflare.com/pt-br/learning/ssl/lava-lamp-encryption/" target="_blank" rel="noopener">lâmpadas de lava</a> como uma das fontes de aleatoriedade da criptografia dela.</p>
     </details>
   </aside>
@@ -501,26 +562,40 @@
   </div>
 </div>
 
+<!-- O lacre do sorteio verificável, para mandar às testemunhas -->
+<dialog id="dialogo-lacre" aria-labelledby="dialogo-lacre-titulo">
+  <h2 id="dialogo-lacre-titulo">🔒 Lista lacrada</h2>
+  <p>Mande este lacre para as testemunhas <strong id="lacre-prazo"></strong>. O jeito mais
+    simples: crie um evento na agenda com o lacre na descrição e convide quem vai assistir.</p>
+  <textarea id="texto-lacre" readonly spellcheck="false"></textarea>
+  <p class="dica">Impressão digital: <code id="impressao-lacre"></code></p>
+  <div class="acoes-dialogo">
+    <a id="link-agenda" class="botao" target="_blank" rel="noopener">📅 Criar evento no Google Agenda</a>
+    <button type="button" id="btn-copiar-lacre">Copiar lacre</button>
+    <button type="button" id="btn-fechar-lacre">Fechar</button>
+  </div>
+  <p id="aviso-agenda" class="dica" hidden>A lista é grande demais para o link da agenda: copie o lacre e cole na descrição do evento.</p>
+  <p class="dica">O que vale como prova é o <strong>e-mail de convite</strong> que chega na caixa de
+    cada testemunha, e não o evento: o evento pode ser editado depois; o e-mail, não.</p>
+</dialog>
+
 <canvas id="confete"></canvas>
 
+<!-- A regra do sorteio (quem ganha, sem viés) mora num arquivo à parte,
+     o mesmo que o conferidor e os testes usam. O farol (e a biblioteca que
+     confere as assinaturas dele) só entra em ação no sorteio verificável. -->
+<script src="regra-do-sorteio.js"></script>
+<script src="vendor/noble-bls.js"></script>
+<script src="farol.js"></script>
 <script>
 /* =====================================================================
    1. ALEATORIEDADE — a parte que precisa ser justa
    ===================================================================== */
 
-// Devolve um inteiro de 0 até max-1, com a mesma chance para cada um.
-// crypto.getRandomValues gera números de 32 bits (0 a 4.294.967.295).
-// Se fizermos só "numero % max", os restos menores aparecem um pouquinho
-// mais vezes (viés do módulo). Por isso descartamos o pedaço final que
-// não divide certinho e sorteamos de novo.
-function inteiroAleatorio(max) {
-  const limite = Math.floor(0x100000000 / max) * max;
-  const buffer = new Uint32Array(1);
-  do {
-    crypto.getRandomValues(buffer);
-  } while (buffer[0] >= limite);
-  return buffer[0] % max;
-}
+// Devolve um inteiro de 0 até max-1, com a mesma chance para cada um,
+// usando o gerador criptográfico do navegador e descartando o "pedaço que
+// sobra" (viés do módulo). A explicação está em regra-do-sorteio.js.
+const { inteiroAleatorio } = RegraDoSorteio;
 
 /* =====================================================================
    2. ESTADO E LEITURA DOS NOMES
@@ -542,6 +617,8 @@ const estado = {
   sorteios: [],     // histórico: [{ numero, inicio, resultados: [...] }]
   girando: false,
   rotacao: 0,       // ângulo atual da roda, em radianos
+  lacre: null,      // sorteio verificável: { texto, dados, impressao, resultados }
+  aviso: '',        // recado que toma o lugar do status (ex.: farol fora do ar)
 };
 
 // O histórico fica guardado no próprio navegador (localStorage), para não
@@ -576,8 +653,10 @@ function chave(nome) {
     .toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-// Lê a caixa de texto e devolve [{ id, nome }]
+// Lê a caixa de texto e devolve [{ id, nome }]. Com a lista lacrada, quem
+// manda é o lacre: a roda precisa ter exatamente os nomes e a ordem dele.
 function participantes() {
+  if (estado.lacre) return estado.lacre.dados.participantes.map((nome, id) => ({ id, nome }));
   const brutos = $('nomes').value.split(/\r?\n|,/).map((n) => n.trim()).filter(Boolean);
   const ignorar = $('ignorar-duplicados').checked;
   const vistos = new Set();
@@ -916,16 +995,36 @@ function confete() {
 
 async function sortear() {
   if (estado.girando) return;
-  if (sorteioConcluido()) { novoSorteio(); return; }
+  if (sorteioConcluido()) {
+    // Um lacre vale para um sorteio só: terminou, a lista destrava
+    if (estado.lacre) encerrarLacre();
+    novoSorteio();
+    return;
+  }
 
   const lista = participantesNaRoda();
   if (lista.length === 0) return;
 
   estado.girando = true;
+  estado.aviso = '';
   atualizarTela();
 
-  // Passo 1: decidir. Aqui, e só aqui, o acaso escolhe o vencedor.
-  const indice = inteiroAleatorio(lista.length);
+  // Passo 1: decidir. Aqui, e só aqui, o acaso escolhe o vencedor: o
+  // gerador do navegador, ou o farol no sorteio verificável.
+  let indice;
+  if (estado.lacre) {
+    const resultado = await proximoDoFarol();
+    if (!resultado) { estado.girando = false; atualizarTela(); return; } // farol falhou: nada sorteado
+    indice = resultado.indice;
+    // A roda e a regra têm que concordar. Se um dia discordarem, é defeito
+    // grave: melhor parar do que mostrar um vencedor diferente do lacre.
+    if (lista[indice]?.nome !== resultado.nome) {
+      estado.girando = false;
+      throw new Error(`A roda e a regra discordam: ${lista[indice]?.nome} × ${resultado.nome}`);
+    }
+  } else {
+    indice = inteiroAleatorio(lista.length);
+  }
   const vencedor = lista[indice];
 
   // Passo 2: suspense
@@ -936,7 +1035,10 @@ async function sortear() {
 
   // Passo 4: registrar e comemorar
   if (estado.vencedores.length === 0) {
-    estado.sorteios.push({ numero: estado.sorteios.length + 1, inicio: new Date(), resultados: [] });
+    const sorteio = { numero: estado.sorteios.length + 1, inicio: new Date(), resultados: [] };
+    // No verificável, o comprovante leva o lacre: com ele, qualquer um confere
+    if (estado.lacre) sorteio.verificavel = { lacre: estado.lacre.texto, rodada: estado.lacre.dados.rodada, impressao: estado.lacre.impressao };
+    estado.sorteios.push(sorteio);
   }
   estado.vencedores.push(vencedor.id);
   const posicao = estado.vencedores.length;
@@ -958,6 +1060,172 @@ async function sortear() {
 function novoSorteio() {
   estado.vencedores = [];
   atualizarTela();
+}
+
+/* =====================================================================
+   6b. SORTEIO VERIFICÁVEL: o lacre e o farol
+   O passo a passo e o porquê de cada regra estão no COMO-FUNCIONA.md,
+   seções 4 e 5.
+   ===================================================================== */
+
+const CHAVE_LACRE = 'sorteador:lacre';
+const MIN_ANTECEDENCIA_MS = 60 * 1000; // o lacre precisa de tempo para chegar antes do número
+
+// "Daqui a 10 minutos, minuto cheio", no formato do campo datetime-local
+function horarioSugerido() {
+  const d = new Date(Date.now() + 10 * 60 * 1000);
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // datetime-local é sempre no fuso local
+  return d.toISOString().slice(0, 16);
+}
+
+// Os 16 primeiros caracteres da impressão digital, de 4 em 4: fácil de
+// comparar de olho com o convite
+const impressaoCurta = (impressao) => impressao.slice(0, 16).match(/.{4}/g).join(' ');
+
+const horaDaRodada = (rodada) => RegraDoSorteio.horarioDaRodada(rodada);
+
+async function lacrar() {
+  const aviso = $('aviso-lacre');
+  aviso.hidden = true;
+  const horario = new Date($('horario').value);
+  if (Number.isNaN(horario.getTime())) {
+    aviso.textContent = 'Escolha o horário do sorteio.';
+    aviso.hidden = false;
+    return;
+  }
+  if (horario.getTime() - Date.now() < MIN_ANTECEDENCIA_MS) {
+    // Com horário no passado, o número do farol já existiria: o organizador
+    // poderia ver o resultado antes de lacrar. Por isso é recusado.
+    aviso.textContent = 'O horário precisa ser no futuro, com pelo menos 1 minuto de folga.';
+    aviso.hidden = false;
+    return;
+  }
+  try {
+    const texto = RegraDoSorteio.escreverLacre({
+      titulo: $('titulo').value,
+      horario: RegraDoSorteio.formatarHorario(horario),
+      vencedores: qtdVencedores(),
+      semRepeticao: $('sem-repeticao').checked,
+      participantes: participantes().map((p) => p.nome),
+    });
+    await aplicarLacre(texto);
+  } catch (erro) {
+    if (!(erro instanceof RegraDoSorteio.ErroNoLacre)) throw erro;
+    aviso.textContent = erro.message;
+    aviso.hidden = false;
+    return;
+  }
+  try { localStorage.setItem(CHAVE_LACRE, estado.lacre.texto); } catch {}
+  mostrarLacre();
+}
+
+async function aplicarLacre(texto) {
+  const dados = RegraDoSorteio.lerLacre(texto);
+  estado.lacre = { texto, dados, impressao: await RegraDoSorteio.impressaoDigital(dados), resultados: null };
+  estado.vencedores = [];
+  // Os campos passam a mostrar o que está no lacre
+  $('nomes').value = dados.participantes.join('\n');
+  $('qtd-vencedores').value = dados.vencedores;
+  $('sem-repeticao').checked = dados.semRepeticao;
+  $('verificavel').checked = true;
+  $('titulo').value = dados.titulo;
+  atualizarTela();
+}
+
+// O lacre foi usado (sorteio concluído) ou desfeito: a lista destrava
+function encerrarLacre() {
+  estado.lacre = null;
+  estado.aviso = '';
+  try { localStorage.removeItem(CHAVE_LACRE); } catch {}
+  $('horario').value = horarioSugerido();
+}
+
+// Endereço do conferidor com o lacre embutido depois do "#": essa parte do
+// endereço nunca sai do navegador.
+function enderecoDoConferidor(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  let binario = '';
+  for (const b of bytes) binario += String.fromCharCode(b);
+  const base64 = btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return `${new URL('conferir.html', location.href)}#lacre=${base64}`;
+}
+
+// O mesmo endereço, para mandar a outras pessoas. Aberto direto do disco
+// (file://), ele só funcionaria neste computador, então não é oferecido.
+function linkParaConferir(texto) {
+  return location.protocol.startsWith('http') ? enderecoDoConferidor(texto) : null;
+}
+
+// O texto que vai na descrição do evento: o lacre e como conferir
+function descricaoDoEvento() {
+  const link = linkParaConferir(estado.lacre.texto);
+  return `${estado.lacre.texto}\n\n` + (link
+    ? `Para conferir depois do sorteio: ${link}`
+    : 'Para conferir depois do sorteio: abra o conferir.html do projeto (github.com/kafeltz/prototipo-sorteador) e cole este lacre.');
+}
+
+// Um link que abre o Google Agenda com o evento já preenchido. Não usa
+// nenhuma API nem login: o organizador revisa, convida e salva.
+function linkDaAgenda() {
+  const inicio = RegraDoSorteio.lerHorario(estado.lacre.dados.horario);
+  const fim = new Date(inicio.getTime() + 30 * 60 * 1000);
+  const utc = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: estado.lacre.dados.titulo,
+    dates: `${utc(inicio)}/${utc(fim)}`,
+    details: descricaoDoEvento(),
+  });
+  const link = `https://calendar.google.com/calendar/render?${params}`;
+  return link.length <= 8000 ? link : null; // links gigantes são recusados pela agenda
+}
+
+function mostrarLacre() {
+  const { dados, impressao } = estado.lacre;
+  const horario = RegraDoSorteio.lerHorario(dados.horario);
+  $('lacre-prazo').textContent = `antes de ${horario.toLocaleString('pt-BR')}`;
+  $('texto-lacre').value = descricaoDoEvento();
+  $('impressao-lacre').textContent = impressao;
+  const agenda = linkDaAgenda();
+  $('link-agenda').href = agenda || '#';
+  $('link-agenda').setAttribute('aria-disabled', String(!agenda));
+  $('aviso-agenda').hidden = Boolean(agenda);
+  $('dialogo-lacre').showModal();
+}
+
+// Busca a rodada (uma vez só) e devolve o próximo vencedor já decidido.
+// Se o farol falhar, devolve null e explica no status: nada é sorteado.
+async function proximoDoFarol() {
+  const lacre = estado.lacre;
+  if (!lacre.resultados) {
+    estado.aviso = `Consultando o farol (rodada ${lacre.dados.rodada})…`;
+    atualizarTela();
+    try {
+      const rodada = await Farol.buscarRodada(lacre.dados.rodada);
+      lacre.resultados = (await RegraDoSorteio.sortearLacre(lacre.dados, rodada.aleatoriedade)).resultados;
+      estado.aviso = '';
+    } catch (erro) {
+      if (!(erro instanceof Farol.ErroDoFarol)) throw erro;
+      estado.aviso = erro.motivo === 'assinatura-invalida'
+        ? `⛔ ${erro.message} Sorteio interrompido.`
+        : `⏸ ${erro.message} Nada foi sorteado.`;
+      return null;
+    }
+  }
+  return lacre.resultados[estado.vencedores.length];
+}
+
+// Ainda falta para a rodada sair? Em milissegundos (0 se já saiu)
+function faltaParaRodada() {
+  if (!estado.lacre) return 0;
+  return Math.max(0, horaDaRodada(estado.lacre.dados.rodada).getTime() - Date.now());
+}
+
+function tempo(ms) {
+  const s = Math.ceil(ms / 1000);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), seg = String(s % 60).padStart(2, '0');
+  return h ? `${h}h${String(m).padStart(2, '0')}min` : `${m}:${seg}`;
 }
 
 /* =====================================================================
@@ -983,16 +1251,43 @@ function atualizarTela() {
   if ($('sem-repeticao').checked) $('qtd-vencedores').max = Math.max(1, todos.length);
   else $('qtd-vencedores').removeAttribute('max');
 
+  // Sorteio verificável: com a lista lacrada, nada do que decide o
+  // resultado pode mudar; sem lacre, não dá para sortear
+  const lacre = estado.lacre;
+  const verificavel = $('verificavel').checked;
+  const falta = faltaParaRodada();
+  const semLacre = verificavel && !lacre;
+  for (const id of ['btn-csv', 'ignorar-duplicados', 'qtd-vencedores', 'sem-repeticao', 'verificavel']) {
+    $(id).disabled = Boolean(lacre);
+  }
+  $('nomes').readOnly = Boolean(lacre);
+  $('opcoes-verificavel').hidden = !verificavel || Boolean(lacre);
+  $('lacrado').hidden = !lacre;
+  $('selo-lacre').hidden = !lacre;
+  if (lacre) {
+    const quando = RegraDoSorteio.lerHorario(lacre.dados.horario).toLocaleString('pt-BR');
+    $('lacrado-texto').textContent = `🔒 Lista lacrada para ${quando}.`;
+    $('selo-lacre').replaceChildren('🔒 Lacre ', Object.assign(document.createElement('code'), { textContent: impressaoCurta(lacre.impressao) }),
+      ` · farol drand, rodada ${lacre.dados.rodada}`);
+    // Com a roda já mostrando vencedores, desfazer o lacre não faz mais sentido
+    $('btn-desfazer-lacre').disabled = estado.girando || estado.vencedores.length > 0;
+  }
+
   const btn = $('btn-sortear');
-  btn.disabled = estado.girando || todos.length === 0;
+  btn.disabled = estado.girando || todos.length === 0 || semLacre || falta > 0;
   if (sorteioConcluido() && estado.vencedores.length > 0) btn.textContent = 'NOVO SORTEIO';
+  else if (semLacre) btn.textContent = 'LACRE A LISTA';
+  else if (falta > 0) btn.textContent = 'AGUARDANDO O FAROL';
   else if (qtd > 1) btn.textContent = `SORTEAR O ${estado.vencedores.length + 1}º!`;
   else btn.textContent = 'SORTEAR!';
 
   let status;
   if (todos.length === 0) status = 'Cole os nomes ao lado para começar.';
+  else if (estado.aviso) status = estado.aviso;
   else if (estado.girando) status = 'Rodando…';
   else if (sorteioConcluido() && estado.vencedores.length > 0) status = 'Sorteio concluído! 🎉';
+  else if (semLacre) status = 'Sorteio verificável: lacre a lista no painel ao lado antes de sortear.';
+  else if (falta > 0) status = `O farol publica a rodada ${lacre.dados.rodada} em ${tempo(falta)}. Até lá, ninguém sabe quem vai ganhar.`;
   else status = `${naRoda.length} na roda · ${estado.vencedores.length} de ${qtd} vencedor${qtd === 1 ? '' : 'es'} sorteado${qtd === 1 ? '' : 's'}`;
   $('status').textContent = status;
 
@@ -1016,9 +1311,19 @@ function renderizarHistorico() {
     btnImagem.textContent = 'Imagem';
     btnImagem.title = 'Baixar uma imagem deste sorteio para compartilhar';
     btnImagem.addEventListener('click', () => baixarImagem(s));
+    const botoes = document.createElement('span');
+    botoes.append(btnImagem);
+    if (s.verificavel) {
+      const btnConferir = document.createElement('button');
+      btnConferir.type = 'button';
+      btnConferir.textContent = 'Conferir';
+      btnConferir.title = 'Refazer a conta deste sorteio no conferidor';
+      btnConferir.addEventListener('click', () => window.open(enderecoDoConferidor(s.verificavel.lacre), '_blank', 'noopener'));
+      botoes.prepend(btnConferir);
+    }
     const cabecalho = document.createElement('div');
     cabecalho.className = 'linha botoes-pequenos';
-    cabecalho.append(titulo, btnImagem);
+    cabecalho.append(titulo, botoes);
     const ol = document.createElement('ol');
     for (const r of s.resultados) {
       const li = document.createElement('li');
@@ -1031,15 +1336,24 @@ function renderizarHistorico() {
       ol.append(li);
     }
     bloco.append(cabecalho, ol);
+    if (s.verificavel) {
+      const selo = document.createElement('p');
+      selo.className = 'comprovante';
+      selo.textContent = `🔒 Verificável · rodada ${s.verificavel.rodada} · lacre ${impressaoCurta(s.verificavel.impressao)}`;
+      bloco.append(selo);
+    }
     alvo.append(bloco);
   }
 }
 
 function textoDosResultados() {
-  return estado.sorteios.map((s) =>
-    `Sorteio #${s.numero} (${s.inicio.toLocaleString('pt-BR')})\n` +
-    s.resultados.map((r) => `${r.posicao}º ${r.nome} — nº ${r.sorteado} de ${r.totalNaRoda}`).join('\n')
-  ).join('\n\n');
+  return estado.sorteios.map((s) => {
+    const link = s.verificavel && linkParaConferir(s.verificavel.lacre);
+    return `Sorteio #${s.numero} (${s.inicio.toLocaleString('pt-BR')})\n` +
+      s.resultados.map((r) => `${r.posicao}º ${r.nome} — nº ${r.sorteado} de ${r.totalNaRoda}`).join('\n') +
+      (s.verificavel ? `\nVerificável: farol drand, rodada ${s.verificavel.rodada}, lacre ${impressaoCurta(s.verificavel.impressao)}` : '') +
+      (link ? `\nConfira: ${link}` : '');
+  }).join('\n\n');
 }
 
 /* =====================================================================
@@ -1139,7 +1453,13 @@ async function gerarImagem(sorteio) {
   // Rodapé: como o resultado foi decidido
   ctx.fillStyle = css('--texto-suave');
   ctx.font = `700 28px ${fonte}`;
-  ctx.fillText('Sorteado com o gerador criptográfico do navegador', W / 2, H - 125);
+  if (sorteio.verificavel) {
+    ctx.fillText(`Sorteio verificável · farol drand, rodada ${sorteio.verificavel.rodada}`, W / 2, H - 140);
+    ctx.font = `24px ui-monospace, monospace`;
+    ctx.fillText(`lacre ${impressaoCurta(sorteio.verificavel.impressao)}`, W / 2, H - 105);
+  } else {
+    ctx.fillText('Sorteado com o gerador criptográfico do navegador', W / 2, H - 125);
+  }
   return canvas;
 }
 
@@ -1227,12 +1547,49 @@ document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement) document.body.classList.remove('apresentacao');
 });
 
+// Sorteio verificável
+$('verificavel').addEventListener('change', () => { estado.aviso = ''; atualizarTela(); });
+$('btn-lacrar').addEventListener('click', lacrar);
+$('btn-ver-lacre').addEventListener('click', mostrarLacre);
+$('btn-fechar-lacre').addEventListener('click', () => $('dialogo-lacre').close());
+$('btn-copiar-lacre').addEventListener('click', async () => {
+  await navigator.clipboard.writeText($('texto-lacre').value);
+  $('btn-copiar-lacre').textContent = 'Copiado!';
+  setTimeout(() => ($('btn-copiar-lacre').textContent = 'Copiar lacre'), 1500);
+});
+$('btn-desfazer-lacre').addEventListener('click', () => {
+  const aviso = faltaParaRodada() > 0
+    ? 'Desfazer o lacre? Quem já recebeu este lacre vai ver que o sorteio dele não aconteceu.'
+    : 'A rodada do farol já saiu: o resultado deste lacre já existe e qualquer um pode calculá-lo. ' +
+      'Desfazer agora vai parecer que você não gostou do resultado. Desfazer mesmo assim?';
+  if (!confirm(aviso)) return;
+  encerrarLacre();
+  novoSorteio();
+});
+// Enquanto espera o farol, a contagem anda sozinha
+setInterval(() => { if (estado.lacre && !estado.girando && estado.vencedores.length === 0) atualizarTela(); }, 1000);
+
 // Redesenha quando a fonte do título terminar de carregar
 document.fonts?.ready.then(() => desenharRoda());
+
+// Recarregou a página com a lista lacrada? O lacre volta: ele não pode
+// sumir no meio da live só porque o navegador fechou.
+async function retomarLacre() {
+  $('horario').value = horarioSugerido();
+  let texto = null;
+  try { texto = localStorage.getItem(CHAVE_LACRE); } catch {}
+  if (!texto) return;
+  try {
+    await aplicarLacre(texto);
+  } catch {
+    try { localStorage.removeItem(CHAVE_LACRE); } catch {} // lacre estragado: descarta
+  }
+}
 
 carregarHistorico();
 atualizarTela();
 renderizarHistorico();
+retomarLacre();
 </script>
 </body>
 </html>
