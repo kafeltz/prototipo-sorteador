@@ -49,6 +49,7 @@ Para rodar no seu computador:
 - Modo apresentação em tela cheia, para lives e encontros
 - Temas visuais: Clássico, Estúdio (inspirado na Roda a Roda) e Manhã (inspirado no Bom Dia & Cia); a escolha fica guardada no navegador
 - **Sorteio verificável**: a lista é lacrada e enviada às testemunhas (pelo Google Agenda, por exemplo) antes do sorteio, o acaso vem do farol público drand, e qualquer pessoa refaz a conta no conferidor
+- **Página pública de cada sorteio, com QR code** (opcional, com o servidor): quem assiste abre no celular, vê o lacre, a contagem e o resultado conferido no próprio aparelho
 
 ### Publicar na Cloudflare
 
