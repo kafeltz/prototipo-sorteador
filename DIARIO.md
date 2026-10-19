@@ -568,3 +568,116 @@ comunidade, e sem precisar de servidor.
 > as regras que não podem ser quebradas. E "mais aleatório" não é o mesmo que
 > "verificável": antes de buscar a solução, descubra qual é o problema de
 > verdade.
+
+---
+
+## Ato 12: O projeto muda de mãos
+
+**Data:** 19/10/2026
+
+### O que aconteceu
+
+Os alunos que iam continuar o sorteador saíram do projeto. Sigo sozinho, e o
+diário muda um pouco de papel: passa a registrar **como o trabalho seria
+feito**, para quem quiser aprender com ele depois.
+
+A ambição também mudou. Até aqui era um protótipo; agora a meta é deixar o
+sorteador **pronto para produção**, começando pelo que as issues
+[#3](https://github.com/kafeltz/prototipo-sorteador/issues/3) (precisamos de um
+servidor?) e [#4](https://github.com/kafeltz/prototipo-sorteador/issues/4)
+(sorteio que o público consegue conferir) deixaram em aberto.
+
+### O que eu pedi
+
+Primeiro, só um plano, sem código. Depois, que a IA executasse o plano inteiro
+sozinha, por horas, sem me pedir ok a cada passo.
+
+### O que foi decidido
+
+- **O plano em marcos, e cada marco em atos.** Primeiro o sorteio verificável
+  sem servidor; depois o servidor; por último o ensaio geral. Cada marco é
+  útil sozinho: se o trabalho parar no meio, o que ficou pronto funciona.
+- **Sozinho, mas com pull request.** Nada vai direto para a `main`: cada marco
+  vira um PR, que só entra com os testes passando. Ninguém revisa na hora, mas o
+  histórico fica do jeito que uma pessoa conseguiria revisar depois.
+- **Autonomia com regras combinadas antes.** A IA trabalha sem esperar meu ok
+  entre os itens, mas continua fazendo um item por commit, conferido antes do
+  próximo, como no Ato 7. E ficou escrito quando ela **para e me chama**: algo
+  que exige conta, chave ou DNS; uma decisão de produto que aparece no meio do
+  caminho; um teste que falha sem ela entender por quê.
+- **Quatro decisões tomadas antes de começar**, porque mexem com coisa
+  pública: o servidor vai para um endereço de prévia, e não para o domínio
+  oficial, até a apresentação passar; só eu crio sorteios no servidor, com uma
+  senha; a lista de participantes de um sorteio fica pública, com aviso, por
+  90 dias; e a IA pode fazer o merge dos PRs quando os testes passarem.
+
+### Lição
+
+> Quando a equipe vai embora, sobra o que foi escrito: o diário, as issues e
+> os diagramas. Foi isso que permitiu retomar sem perder nada. E deixar a IA
+> trabalhar sozinha por horas só é seguro com as regras combinadas antes: o
+> ritmo, onde ela entrega e quando ela tem que parar.
+
+---
+
+## Ato 13: O vilão antes do código
+
+**Data:** 19/10/2026
+
+### O que eu pedi
+
+Tive uma ideia para o sorteio ser à prova de desconfiança: **testemunhas**. As
+pessoas leem um QR code, deixam o e-mail e, depois do sorteio, todas recebem a
+"semente", o número secreto que decidiu o resultado. Assim ninguém pode dizer
+que o sistema mentiu.
+
+### O furo
+
+A IA gostou da ideia, mas achou um furo antes de escrever qualquer código: se
+a semente chega **só depois**, a testemunha não sabe quantas sementes o
+organizador testou até achar uma que desse o resultado que ele queria. A
+semente chega certinha e não prova nada.
+
+Para achar furos assim, o primeiro passo foi escrever uma tabela: **quem pode
+trapacear, e como**. Sortear várias vezes, mexer na lista depois, inflar as
+chances com nomes repetidos, mostrar um sorteio e esconder outro. Para cada
+trapaça, o que impede. A tabela está no
+[`COMO-FUNCIONA.md`](COMO-FUNCIONA.md#4-o-sorteio-verificável-quem-pode-trapacear).
+
+### O conserto: o lacre e o farol
+
+- **Um lacre antes do sorteio.** Um texto com a lista, as regras e o horário,
+  entregue às testemunhas **antes** de o resultado existir.
+- **Um acaso que ninguém controla.** O número vem do farol público da issue
+  #4, numa rodada futura. Se a semente viesse do organizador, ele poderia
+  testar sementes antes de lacrar; se viesse das testemunhas, ele poderia
+  inventar testemunhas falsas no fim.
+
+### A minha ideia, a agenda
+
+Pensei em marcar o sorteio pelo **Google Agenda**: todo mundo que recebe o
+convite fica com algo que não dá mais para alterar. A ideia ficou, com um
+ajuste que vale a aula:
+
+- **O evento pode ser alterado; o e-mail do convite, não.** O organizador
+  edita o evento quando quiser, até sem avisar os convidados. Mas o e-mail que
+  chegou fica na caixa de cada um, **assinado pelo Google**. O lacre de verdade
+  é o e-mail.
+- **A agenda carrega o lacre, mas não gera o acaso.** Se o número saísse do
+  evento, o organizador poderia apagar e criar de novo até gostar.
+- **De brinde, zero integração.** O sorteador só precisa gerar o texto para
+  colar na descrição do evento. Nenhum login no Google, nenhum e-mail guardado
+  pelo projeto.
+
+### O limite
+
+Não dá para resolver tudo, e nem é o objetivo. O `COMO-FUNCIONA.md` ganhou uma
+seção **"O que isto NÃO protege"**: um conluio do organizador com todas as
+testemunhas, dois eventos escondidos, uma traição dentro do próprio farol e,
+principalmente, quem não confere.
+
+### Lição
+
+> Segurança começa perguntando quem é o vilão, antes do código. Uma ideia boa
+> com um furo vira uma ideia ótima quando alguém procura o furo cedo. E um
+> sistema honesto diz onde a proteção dele acaba.
