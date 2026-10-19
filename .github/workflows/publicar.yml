@@ -56,4 +56,4 @@ jobs:
         run: npx wrangler deploy
       - name: Confere o que foi publicado
         if: steps.segredos.outputs.ok == 'sim'
-        run: node testes/fumaca.mjs https://sorteador.shalanga.workers.dev
+        run: node testes/fumaca.mjs https://sorteador.kafeltz.com.br

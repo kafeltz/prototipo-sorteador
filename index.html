@@ -1281,8 +1281,8 @@ async function publicar(evento) {
     });
     const corpo = await resposta.json();
     if (!resposta.ok) throw new Error(corpo.erro || `O servidor respondeu ${resposta.status}.`);
-    estado.lacre.endereco = corpo.endereco;
-    try { localStorage.setItem(CHAVE_ENDERECO, corpo.endereco); } catch {}
+    estado.lacre.endereco = new URL(corpo.caminho, location.href).href; // o endereço de onde esta página está aberta
+    try { localStorage.setItem(CHAVE_ENDERECO, estado.lacre.endereco); } catch {}
     $('senha-organizador').value = ''; // a senha não fica guardada em lugar nenhum
     status.textContent = '✓ Publicado. O endereço já está no texto do convite acima.';
     mostrarLacre();
