@@ -85,13 +85,13 @@ function placar(texto, { grande = '', vencedores = null, grave = false } = {}) {
   alvo.replaceChildren(...filhos);
 }
 
-function mostrarLacre(sorteio, dados) {
+function mostrarLacre(sorteio, dados, impressao) {
   document.title = `${dados.titulo} · Sorteio verificável`;
   $('titulo').textContent = dados.titulo;
-  $('impressao-curta').textContent = sorteio.impressao.slice(0, 16).match(/.{4}/g).join(' ');
+  $('impressao-curta').textContent = impressao.slice(0, 16).match(/.{4}/g).join(' ');
   $('regras').textContent = `${dados.vencedores} vencedor${dados.vencedores > 1 ? 'es' : ''}, ` +
     `${dados.semRepeticao ? 'quem ganha sai da roda' : 'pode repetir'} · farol drand, rodada ${dados.rodada}`;
-  $('impressao-completa').textContent = sorteio.impressao;
+  $('impressao-completa').textContent = impressao;
   $('resumo-participantes').textContent = `Participantes (${dados.participantes.length})`;
   $('participantes').replaceChildren(...dados.participantes.map((nome) => Object.assign(document.createElement('li'), { textContent: nome })));
   $('prazo').textContent = R.lerHorario(dados.horario).toLocaleString('pt-BR');
@@ -138,7 +138,9 @@ async function acompanhar() {
       'Confie na conta abaixo, feita aqui com o farol, e avise o organizador.', { vencedores: conta.resultados, grave: true });
     return;
   }
-  placar(`✓ Resultado conferido no seu aparelho (rodada ${dados.rodada}, assinatura do farol válida):`, { vencedores: conta.resultados });
+  // O "✓" vale para ESTE lacre: quem recebeu o convite confere se é o mesmo
+  placar(`✓ Conta refeita no seu aparelho, com a assinatura do farol válida, para o lacre ` +
+    `${conta.impressao.slice(0, 16).match(/.{4}/g).join(' ')} (confira se é o do seu convite):`, { vencedores: conta.resultados });
 }
 
 async function iniciar() {
@@ -152,7 +154,16 @@ async function iniciar() {
   }
   sorteio = await resposta.json();
   dados = R.lerLacre(sorteio.lacre);
-  mostrarLacre(sorteio, dados);
+  // A impressão digital mostrada é calculada AQUI, a partir do lacre que
+  // chegou, e não copiada do que o servidor diz. Um servidor desonesto
+  // poderia trocar a lista e repetir a impressão do convite original.
+  const impressao = await R.impressaoDigital(dados);
+  mostrarLacre(sorteio, dados, impressao);
+  if (impressao !== sorteio.impressao) {
+    placar('⛔ O lacre entregue pelo servidor não corresponde à impressão digital que o próprio servidor ' +
+      'informa. Alguém mexeu no lacre. Não confie nesta página; confira com o convite que você recebeu.', { grave: true });
+    return;
+  }
   acompanhar();
 }
 

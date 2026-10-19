@@ -89,6 +89,14 @@ async function conferir() {
   passo('ok', `Lacre lido: "${dados.titulo}", ${dados.participantes.length} participantes, ` +
     `${dados.vencedores} vencedor${dados.vencedores > 1 ? 'es' : ''}` +
     `${dados.semRepeticao ? '' : ', podendo repetir'}.`, `Impressão digital: ${impressao}`, 'detalhe hash');
+  // Quem concorre fica à vista: é a lista que o lacre travou
+  const quemConcorre = document.createElement('details');
+  quemConcorre.append(Object.assign(document.createElement('summary'), { textContent: `Ver os ${dados.participantes.length} participantes` }));
+  const nomes = document.createElement('ol');
+  nomes.className = 'participantes';
+  nomes.append(...dados.participantes.map((nome) => Object.assign(document.createElement('li'), { textContent: nome })));
+  quemConcorre.append(nomes);
+  $('passos').lastChild.lastChild.append(quemConcorre);
   passo('aviso', `Este lacre só prova algo se chegou até você antes de ${horario.toLocaleString('pt-BR')}.`,
     'Confira a hora em que o convite chegou na sua caixa de entrada. Se chegou depois, a conta abaixo ' +
     'continua certa, mas não dá para saber se a lista foi trocada.');
