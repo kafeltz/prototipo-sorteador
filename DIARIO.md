@@ -856,3 +856,40 @@ As capturas pegaram mais um defeito de layout: com dois botões no histórico
 > confiável são as portas fechadas: horário no passado, farol fora do ar,
 > página recarregada, roda e regra discordando. Cada uma é uma linha de código
 > e uma trapaça a menos.
+
+---
+
+## Ato 17: Decisões escritas antes do servidor
+
+**Data:** 19/10/2026
+
+### O que eu pedi
+
+Um servidor (um "backend") e um banco de dados. Pensei em SQLite, para ser
+ultra pequeno.
+
+### O que foi feito
+
+Antes de qualquer código, três **registros de decisão** na pasta
+[`docs/decisoes/`](docs/decisoes/). Cada um diz o contexto, o que foi decidido,
+o que se ganha, o que se perde e o que ficou de fora:
+
+1. **Para que um servidor.** A surpresa: o sorteio verificável, que parecia
+   precisar de servidor, já funcionava sem ele. Sobrou um uso só: dar a cada
+   sorteio um **endereço público**, para quem assiste abrir pelo celular. E o
+   servidor **não precisa ser confiável**: a página refaz a conta no navegador
+   de quem olha.
+2. **Com quê.** Cloudflare Workers com **D1, que é o próprio SQLite**,
+   gerenciado. Ultra pequeno, como eu queria, e sem máquina para manter.
+   Descartados: uma máquina virtual (alguém tem que cuidar dela) e os Durable
+   Objects (o servidor nem precisa estar acordado na hora do sorteio).
+3. **Que dados.** As respostas que a issue #3 cobrava: o que fica guardado
+   (só o lacre, sem e-mail, IP ou cookie), quem grava (só eu, com senha), quem
+   lê (todo mundo: sem a lista, ninguém confere) e por quanto tempo (90 dias).
+
+### Lição
+
+> Decisão escrita é decisão que dá para revisar. Daqui a seis meses, ninguém
+> vai lembrar por que não foi uma máquina virtual, mas o arquivo vai estar lá.
+> E escrever antes do código às vezes revela que metade do código não precisa
+> existir.
