@@ -11,7 +11,12 @@ acontece na prática. As regras por baixo dos panos (como o sorteio decide, por
 que não tem viés, como os temas funcionam) estão em diagramas no
 [COMO-FUNCIONA.md](COMO-FUNCIONA.md).
 
-## Como rodar
+## Como usar
+
+No ar em **https://sorteador.kafeltz.com.br**. Para conferir um sorteio:
+https://sorteador.kafeltz.com.br/conferir
+
+## Como rodar no seu computador
 
 Não precisa instalar nada. Baixe o repositório e abra o `index.html` no
 navegador. Para conferir um sorteio verificável, abra o `conferir.html` (ou,

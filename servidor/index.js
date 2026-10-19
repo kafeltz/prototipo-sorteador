@@ -53,7 +53,7 @@ async function rotear(request, env, url, ctx) {
   const metodo = request.method;
 
   if (pathname === '/api/saude' && metodo === 'GET') return json({ ok: true });
-  if (pathname === '/api/sorteios' && metodo === 'POST') return publicar(request, env, url);
+  if (pathname === '/api/sorteios' && metodo === 'POST') return publicar(request, env);
 
   const api = /^\/api\/sorteios\/([^/]+)$/.exec(pathname);
   if (api && CODIGO.test(api[1])) {
@@ -72,7 +72,7 @@ async function rotear(request, env, url, ctx) {
 
 /* ---------- As rotas ---------- */
 
-async function publicar(request, env, url) {
+async function publicar(request, env) {
   await exigirOrganizador(request, env);
 
   const corpo = await lerJson(request);
@@ -98,7 +98,7 @@ async function publicar(request, env, url) {
 
   // O mesmo lacre publicado duas vezes é o mesmo sorteio
   const existente = await env.DB.prepare('SELECT id FROM sorteios WHERE impressao = ?').bind(impressao).first();
-  if (existente) return json(resumo(url, existente.id, impressao, dados), 200);
+  if (existente) return json(resumo(existente.id, impressao, dados), 200);
 
   const id = novoCodigo();
   const apagarEm = new Date(sai.getTime() + DIAS_GUARDADO * 24 * 60 * 60 * 1000);
@@ -106,7 +106,7 @@ async function publicar(request, env, url) {
     'INSERT INTO sorteios (id, impressao, lacre, rodada, criado_em, apagar_em) VALUES (?, ?, ?, ?, ?, ?)',
   ).bind(id, impressao, lacre, dados.rodada, new Date().toISOString(), apagarEm.toISOString()).run();
 
-  return json(resumo(url, id, impressao, dados), 201);
+  return json(resumo(id, impressao, dados), 201);
 }
 
 async function consultar(env, id, ctx) {
@@ -188,8 +188,11 @@ function json(dados, status = 200) {
   });
 }
 
-function resumo(url, id, impressao, dados) {
-  return { id, endereco: `${url.origin}/s/${id}`, impressao, rodada: dados.rodada };
+function resumo(id, impressao, dados) {
+  // Só o caminho: atrás de domínios e do servidor de desenvolvimento, o
+  // servidor nem sempre sabe o próprio nome. Quem monta o endereço completo
+  // é a página, que sabe onde ela está aberta.
+  return { id, caminho: `/s/${id}`, impressao, rodada: dados.rodada };
 }
 
 function novoCodigo() {

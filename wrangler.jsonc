@@ -6,7 +6,12 @@
   "main": "servidor/index.js",
   "compatibility_date": "2026-10-01",
 
-  // Endereço de prévia: sorteador.<conta>.workers.dev
+  // O endereço do projeto. A Cloudflare cria sozinha o DNS e o certificado
+  // HTTPS no deploy.
+  "routes": [{ "pattern": "sorteador.kafeltz.com.br", "custom_domain": true }],
+
+  // O endereço provisório (sorteador.<conta>.workers.dev) continua ligado:
+  // QR codes e convites antigos apontam para ele e não podem quebrar.
   "workers_dev": true,
 
   // Os arquivos estáticos (index.html, conferir.html…) saem da raiz do

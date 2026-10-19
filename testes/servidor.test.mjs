@@ -97,7 +97,7 @@ test('publica um lacre e devolve o endereço; o mesmo lacre de novo é o mesmo s
   assert.equal(r1.status, 201);
   const s1 = await r1.json();
   assert.match(s1.id, /^[a-z2-9]{12}$/);
-  assert.equal(s1.endereco, `${base}/s/${s1.id}`);
+  assert.equal(s1.caminho, `/s/${s1.id}`);
 
   const r2 = await publicar(lacre);
   assert.equal(r2.status, 200);
