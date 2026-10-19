@@ -50,6 +50,29 @@ Para rodar no seu computador:
 - Temas visuais: Clássico, Estúdio (inspirado na Roda a Roda) e Manhã (inspirado no Bom Dia & Cia); a escolha fica guardada no navegador
 - **Sorteio verificável**: a lista é lacrada e enviada às testemunhas (pelo Google Agenda, por exemplo) antes do sorteio, o acaso vem do farol público drand, e qualquer pessoa refaz a conta no conferidor
 
+### Publicar na Cloudflare
+
+Cada push na `main` roda os testes e, se tudo passar, publica sozinho
+(`.github/workflows/publicar.yml`): primeiro aplica as mudanças do banco,
+confere que não sobrou nenhuma pendente, publica o servidor e roda um teste de
+fumaça no endereço publicado (`node testes/fumaca.mjs <endereço>`).
+
+Para isso funcionar, uma pessoa precisa criar uma chave de acesso **uma vez**:
+
+1. No painel da Cloudflare: *My Profile → API Tokens → Create Token*, modelo
+   **"Edit Cloudflare Workers"**, e acrescente a permissão **Account → D1 →
+   Edit**. Restrinja à sua conta.
+2. No terminal, dentro do repositório:
+   `gh secret set CLOUDFLARE_API_TOKEN` (cole a chave quando pedir) e
+   `gh secret set CLOUDFLARE_ACCOUNT_ID` (o ID da conta aparece em
+   `npx wrangler whoami`).
+3. Para conferir: na aba *Actions* do GitHub, o próximo "Publicar" deve
+   terminar com "Tudo certo." no último passo.
+
+Sem a chave, o fluxo avisa e não faz nada. Para publicar à mão:
+`npx wrangler d1 migrations apply DB --remote` e depois `npx wrangler deploy`,
+nessa ordem.
+
 ## Como garantimos que o sorteio é justo
 
 1. O vencedor é decidido **antes** da roda girar; a animação só mostra o resultado.

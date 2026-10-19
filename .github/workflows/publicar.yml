@@ -1,0 +1,59 @@
+# Publica o servidor na Cloudflare a cada push na main, depois dos testes.
+#
+# Precisa de dois segredos no GitHub (Settings → Secrets and variables →
+# Actions), criados por uma pessoa: CLOUDFLARE_API_TOKEN e
+# CLOUDFLARE_ACCOUNT_ID. O passo a passo está no README. Sem eles, este
+# fluxo avisa e não faz nada.
+name: Publicar
+
+on:
+  push:
+    branches: [main]
+
+# Uma publicação de cada vez: um push novo espera o anterior terminar
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Confere se os segredos existem
+        id: segredos
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::Sem os segredos da Cloudflare: publicação pulada (veja o README)."
+            echo "ok=nao" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=sim" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.segredos.outputs.ok == 'sim'
+      - uses: actions/setup-node@v4
+        if: steps.segredos.outputs.ok == 'sim'
+        with:
+          node-version: 22
+      - run: npm ci
+        if: steps.segredos.outputs.ok == 'sim'
+      # Os testes de novo: o que vai para o ar é exatamente o que passou
+      - run: npm test
+        if: steps.segredos.outputs.ok == 'sim'
+      # Primeiro o banco, depois o código (Ato 20), e conferindo
+      - name: Aplica as migrações do banco
+        if: steps.segredos.outputs.ok == 'sim'
+        run: |
+          npx wrangler d1 migrations apply DB --remote
+          if npx wrangler d1 migrations list DB --remote | grep -q '\.sql'; then
+            echo "::error::Ainda há migrações pendentes. O código novo não vai para o ar."
+            exit 1
+          fi
+      - name: Publica
+        if: steps.segredos.outputs.ok == 'sim'
+        run: npx wrangler deploy
+      - name: Confere o que foi publicado
+        if: steps.segredos.outputs.ok == 'sim'
+        run: node testes/fumaca.mjs https://sorteador.shalanga.workers.dev
