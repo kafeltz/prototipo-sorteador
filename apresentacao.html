@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+<title>As cinzas do purgatório · Sorteador do Auditório</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* Cinzas e brasa: quase tudo cinza, e só o essencial acende */
+  :root {
+    --carvao: #0e0d0c;
+    --carvao-2: #1c1916;
+    --cinza: #8f8a84;
+    --cinza-claro: #d9d4cd;
+    --brasa: #ff7a2f;
+    --brasa-rgb: 255, 122, 47;
+    --titulo: 'Fraunces', Georgia, serif;
+    --fonte: 'Nunito', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: var(--cinza-claro);
+    font-family: var(--fonte);
+    background: radial-gradient(ellipse at 50% 115%, rgba(var(--brasa-rgb), 0.16), transparent 55%), var(--carvao);
+  }
+
+  /* Cada tela é 16:9, do maior tamanho que couber; as medidas em cqw
+     (1% da largura da tela) fazem tudo crescer junto, do notebook ao
+     projetor. */
+  .deck {
+    position: relative;
+    width: min(100vw, calc(100vh * 16 / 9));
+    aspect-ratio: 16 / 9;
+    container-type: inline-size;
+  }
+  .tela {
+    position: absolute;
+    inset: 0;
+    padding: 0 12cqw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.4cqw;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s;
+  }
+  .tela.atual { opacity: 1; visibility: visible; }
+  @media (prefers-reduced-motion: reduce) { .tela { transition: none; } }
+
+  .frase {
+    margin: 0;
+    font-family: var(--titulo);
+    font-weight: 700;
+    font-size: 6cqw;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--cinza-claro);
+  }
+  .apoio {
+    margin: 0;
+    max-width: 62cqw;
+    font-size: 2.2cqw;
+    line-height: 1.45;
+    color: var(--cinza);
+  }
+  .rotulo {
+    margin: 0;
+    font-size: 1.5cqw;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--cinza);
+  }
+  .brasa { color: var(--brasa); text-shadow: 0 0 2.4cqw rgba(var(--brasa-rgb), 0.45); }
+  .reticencias { color: var(--cinza); }
+
+  /* Os cinco temas, uma linha cada */
+  .temas { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 1.5cqw 3cqw; font-size: 2.2cqw; }
+  .temas dt { font-family: var(--titulo); font-weight: 700; color: var(--brasa); }
+  .temas dd { margin: 0; color: var(--cinza-claro); }
+
+  .apagado { color: var(--cinza); font-weight: 400; }
+  .endereco { font-size: 1.6cqw; color: var(--cinza); }
+
+  .contador {
+    position: absolute;
+    right: 3cqw;
+    bottom: 2.4cqw;
+    font-size: 1.2cqw;
+    color: var(--cinza);
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<main class="deck" id="deck" aria-roledescription="apresentação">
+
+  <section class="tela" aria-label="É um sorteador">
+    <p class="frase">É um sorteador<span class="reticencias">…</span></p>
+    <p class="apoio">O resto você já sabe: a roda, a contagem, o confete.</p>
+  </section>
+
+  <section class="tela" aria-label="A pergunta">
+    <p class="rotulo">A pergunta</p>
+    <p class="frase">Como provar que eu <span class="brasa">não trapaceei</span>?</p>
+    <p class="apoio">Quem sorteia vê o número nascer. E pode sortear de novo, quantas vezes quiser, até gostar do resultado.</p>
+  </section>
+
+  <section class="tela" aria-label="A Liga da Entropia">
+    <p class="rotulo">O acaso</p>
+    <p class="frase">A <span class="brasa">Liga da Entropia</span></p>
+    <p class="apoio">O número que decide vem de um farol público: um a cada 3 segundos, assinado por um grupo de organizações, num horário marcado antes. Antes da hora, ele não existe, nem para mim.</p>
+    <p class="apoio" style="font-size:1.7cqw">Era só um item da lista de pendências. Virou o coração do projeto.</p>
+  </section>
+
+  <section class="tela" aria-label="As testemunhas">
+    <p class="rotulo">A prova</p>
+    <p class="frase">As <span class="brasa">testemunhas</span></p>
+    <p class="apoio">A lista é lacrada e vai no convite da agenda antes de o número existir. Depois, qualquer pessoa refaz a conta e chega ao mesmo vencedor, sem confiar em mim nem no site.</p>
+  </section>
+
+  <section class="tela" aria-label="Os cinco temas">
+    <p class="rotulo">Em uma linha cada</p>
+    <dl class="temas">
+      <dt>Planejamento</dt><dd>Acadêmico, não profissional. Por isso, nem framework.</dd>
+      <dt>Ferramentas</dt><dd>As mais triviais. A IA escolheu.</dd>
+      <dt>Desenvolvimento</dt><dd>Testes entre cada prompt finalizado.</dd>
+      <dt>Desafio</dt><dd>Encontrar uma fonte de entropia.</dd>
+      <dt>Aprendizado</dt><dd>Qualquer um pode fazer software.</dd>
+    </dl>
+  </section>
+
+  <section class="tela" aria-label="As cinzas do purgatório">
+    <p class="rotulo">As cinzas do purgatório</p>
+    <p class="frase"><span class="apagado">Qualquer um pode fazer software.</span><br>Mas ir além, <span class="brasa">quem pode?</span></p>
+    <p class="apoio">O que diferencia não está no prompt. Está no ser humano com uma ideia aplicada.</p>
+    <p class="endereco">sorteador.kafeltz.com.br</p>
+  </section>
+
+  <div class="contador" id="contador" aria-hidden="true"></div>
+</main>
+
+<script>
+// Navegação: setas, espaço, Page Up/Down, Home/End, F para tela cheia e
+// clique nas metades da tela. O número da tela fica no endereço (#3).
+const telas = [...document.querySelectorAll('.tela')];
+let atual = 0;
+
+function mostrar(n) {
+  atual = Math.max(0, Math.min(telas.length - 1, n));
+  telas.forEach((t, i) => t.classList.toggle('atual', i === atual));
+  document.getElementById('contador').textContent = `${atual + 1} / ${telas.length}`;
+  history.replaceState(null, '', `#${atual + 1}`);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); mostrar(atual + 1); }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); mostrar(atual - 1); }
+  else if (e.key === 'Home') mostrar(0);
+  else if (e.key === 'End') mostrar(telas.length - 1);
+  else if (e.key === 'f' || e.key === 'F') {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen?.().catch(() => {});
+  }
+});
+
+document.getElementById('deck').addEventListener('click', (e) => {
+  const { left, width } = e.currentTarget.getBoundingClientRect();
+  mostrar(atual + (e.clientX - left > width / 2 ? 1 : -1));
+});
+
+mostrar((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>
