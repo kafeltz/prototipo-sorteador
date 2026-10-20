@@ -15,7 +15,7 @@ const confere = (ok, descricao) => {
 const saude = await fetch(`${base}/api/saude`);
 confere(saude.ok && (await saude.json()).ok === true, 'o servidor responde /api/saude');
 
-for (const caminho of ['/', '/conferir', '/regra-do-sorteio.js', '/farol.js', '/vendor/noble-bls.js', '/vendor/qrcode.js', '/estilo-paginas.css']) {
+for (const caminho of ['/', '/conferir', '/apresentacao', '/regra-do-sorteio.js', '/farol.js', '/vendor/noble-bls.js', '/vendor/qrcode.js', '/estilo-paginas.css']) {
   confere((await fetch(base + caminho)).status === 200, `publica ${caminho}`);
 }
 for (const caminho of ['/package.json', '/servidor/index.js', '/wrangler.jsonc', '/.dev.vars', '/_headers', '/DIARIO.md', '/.git/config']) {

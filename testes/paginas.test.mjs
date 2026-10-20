@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-for (const pagina of ['index.html', 'conferir.html', 'sorteio.html']) {
+for (const pagina of ['index.html', 'conferir.html', 'sorteio.html', 'apresentacao.html']) {
   test(`os scripts do ${pagina} são JavaScript válido`, () => {
     const html = fs.readFileSync(new URL(`../${pagina}`, import.meta.url), 'utf8');
     const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
