@@ -89,6 +89,13 @@
   .temas dd { margin: 0; color: var(--cinza-claro); }
 
   .apagado { color: var(--cinza); font-weight: 400; }
+
+  /* A tela das cinzas: o que qualquer um faz vira cinza; o que sobra, brasa */
+  .fogueira { display: grid; grid-template-columns: 1fr 1fr; gap: 4cqw; align-items: start; }
+  .fogueira ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.9cqw; font-size: 2.2cqw; }
+  .queimou li { color: var(--cinza); opacity: 0.55; text-decoration: line-through; text-decoration-color: rgba(143, 138, 132, 0.6); }
+  .sobrou li { font-family: var(--titulo); font-weight: 700; font-size: 3cqw; }
+  .fogueira .rotulo { margin-bottom: 1.2cqw; }
   .endereco { font-size: 1.6cqw; color: var(--cinza); }
 
   .contador {
@@ -140,7 +147,22 @@
   </section>
 
   <section class="tela" aria-label="As cinzas do purgatório">
-    <p class="rotulo">As cinzas do purgatório</p>
+    <p class="frase">As cinzas do <span class="brasa">purgatório</span></p>
+    <p class="apoio">Hoje, com vibe coding, todo mundo pode criar um sorteador. Passe tudo pelo fogo: o que qualquer prompt faz, queima. O que sobra nas cinzas é a essência do trabalho.</p>
+    <div class="fogueira">
+      <div class="queimou">
+        <p class="rotulo">Queimou</p>
+        <ul><li>a roda</li><li>a contagem e o confete</li><li>os temas</li><li>o modo apresentação</li></ul>
+      </div>
+      <div class="sobrou">
+        <p class="rotulo">Sobrou</p>
+        <ul><li class="brasa">a Liga da Entropia</li><li class="brasa">as testemunhas</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="tela" aria-label="A lição">
+    <p class="rotulo">A lição</p>
     <p class="frase"><span class="apagado">Qualquer um pode fazer software.</span><br>Mas ir além, <span class="brasa">quem pode?</span></p>
     <p class="apoio">O que diferencia não está no prompt. Está no ser humano com uma ideia aplicada.</p>
     <p class="endereco">sorteador.kafeltz.com.br</p>
